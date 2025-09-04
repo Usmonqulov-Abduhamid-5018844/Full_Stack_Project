@@ -33,7 +33,7 @@ export default class AppService {
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, documentFactory);
 
-    await app.listen(Port, () => {
+    await app.listen(Port,'0.0.0.0', () => {
       console.log(`server running on port ${Port}`);
     });
   }

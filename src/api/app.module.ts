@@ -1,0 +1,37 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from './prisma/prisma.module';
+import { DoctorModule } from './doctor/doctor.module';
+import { AdminModule } from './admin/admin.module';
+import { PatientsModule } from './patients/patients.module';
+import { TibbiyKorikModule } from './tibbiy_korik/tibbiy_korik.module';
+import { DoctorServicesModule } from './doctor_services/doctor_services.module';
+import { AppointmentsModule } from './appointments/appointments.module';
+import { PaymentsModule } from './payments/payments.module';
+import { CommentsModule } from './comments/comments.module';
+import { ServiceTypeModule } from './service_type/service_type.module';
+import { WelletModule } from './wellet/wellet.module';
+import { SpecializationModule } from './specialization/specialization.module';
+import { DoctorFileModule } from './doctor_file/doctor_file.module';
+import { DoctorSchedulesModule } from './doctor_schedules/doctor_schedules.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
+    PrismaModule,
+    DoctorModule,
+    AdminModule,
+    PatientsModule,
+    TibbiyKorikModule,
+    DoctorServicesModule,
+    AppointmentsModule,
+    PaymentsModule,
+    CommentsModule,
+    ServiceTypeModule,
+    WelletModule,
+    SpecializationModule,
+    DoctorFileModule,
+    DoctorSchedulesModule,
+  ],
+})
+export class AppModule {}

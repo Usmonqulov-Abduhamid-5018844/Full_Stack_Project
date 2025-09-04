@@ -1,0 +1,187 @@
+enum EAdminStatus {
+  active
+  in_active
+  block
+}
+enum EAdminRoles {
+  admin
+  supper_admin
+}
+enum EAppointments {
+    pending
+    confirmed
+    completed
+    cancelled
+}
+enum ECommentSender {
+  doctor
+  patients
+}
+enum EDoctor {
+  Dushanba
+  Seshanba
+  Chorshanba
+  payshanba
+  Juma
+  Shanba
+  Yakshanba
+}
+
+
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Admins {
+  id Int @id @default(autoincrement())
+  full_name String
+  phone String 
+  status EAdminStatus @default(active)
+  image String
+  role EAdminRoles @default(admin)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Doctors {
+  id Int @id @default(autoincrement())
+  first_name String
+  last_name String
+  bio String
+  verified Boolean @default(false)
+  reyting Int
+  experience_years Int
+  phone String
+  password String
+  date_of_birth String
+  gender String
+  image String
+  isAvtive Boolean @default(false)
+  region String
+  specialization_id Int
+}
+
+model Doctor_services {
+  id Int @id @default(autoincrement())
+  doctor_id Int
+  service_type_id Int
+  price Decimal
+}
+
+model Service_type {
+  id Int @id @default(autoincrement())
+  service_name String
+  desc String
+}
+
+model Wellet {
+  id Int @id @default(autoincrement())
+  doctor_id Int
+  balance Decimal
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Specialization {
+  id Int @id @default(autoincrement())
+  name String
+  desc String
+}
+
+model Doctor_file {
+  id Int @id @default(autoincrement())
+  passport_file String
+  diplom_file String
+  yatt_file String
+  sertifikat_file String
+  tibiy_varaqa_file String
+  doctor_id Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model doctor_schedules {
+  id Int @id @default(autoincrement())
+  doctor_id Int
+  day_of_week EDoctor
+  start_time String
+  end_time String
+  is_available Boolean @default(false)
+}
+
+
+
+model Patients {
+  id Int @id @default(autoincrement())
+  first_name String
+  last_name String
+  phone String
+  gender String
+  password String
+  age Int
+  image String
+}
+
+model Tibbiy_korik {
+  id Int @id @default(autoincrement())
+  sana String
+  ish_vaqti String
+  vazni Int
+  boyi Int
+  qabuldagi_shikoyat String
+  Anamnesis_morbi String
+  Anamnesis_vitae String
+  Epidemiologik_tarix String
+  Status_praesens_objectivus String
+  Tashxis String
+  Tekshiruv String
+  Tibbiy_tavsiyalar String
+  doctor_id Int
+  patients_id Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Appointments {
+  id Int @id @default(autoincrement())
+  price Decimal
+  status EAppointments @default(pending)
+  quantity Int
+  appointment_date String
+  doctor_id Int
+  patient_id Int 
+  service_id Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+  message String
+  star Int
+  sender ECommentSender
+  patients_id Int
+  doctor_id Int
+  created_at DateTime @default(now())
+}
+
+model Payments {
+  id Int @id @default(autoincrement())
+  provider String
+  card_last4 Int
+  card_brand String
+  card_token String
+  is_default Boolean
+  doctor_id Int
+  patients_id Int
+  created_at DateTime @default(now())
+}
+

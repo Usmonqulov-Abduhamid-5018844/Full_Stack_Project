@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Controller, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { DoctorModule } from './doctor/doctor.module';
@@ -14,9 +14,10 @@ import { WelletModule } from './wellet/wellet.module';
 import { SpecializationModule } from './specialization/specialization.module';
 import { DoctorFileModule } from './doctor_file/doctor_file.module';
 import { DoctorSchedulesModule } from './doctor_schedules/doctor_schedules.module';
+import { AppController } from './app.controller';
 
 @Module({
-  controllers:[],
+  controllers:[AppController],
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     PrismaModule,

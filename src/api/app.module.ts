@@ -15,6 +15,9 @@ import { SpecializationModule } from './specialization/specialization.module';
 import { DoctorFileModule } from './doctor_file/doctor_file.module';
 import { DoctorSchedulesModule } from './doctor_schedules/doctor_schedules.module';
 import { AppController } from './app.controller';
+import { PatientsCardModule } from './patients_card/patients_card.module';
+import { DoctorCardModule } from './doctor_card/doctor_card.module';
+import { DoctorSpecializationModule } from './doctor_specialization/doctor_specialization.module';
 
 @Module({
   controllers:[AppController],
@@ -34,6 +37,9 @@ import { AppController } from './app.controller';
     SpecializationModule,
     DoctorFileModule,
     DoctorSchedulesModule,
+    PatientsCardModule,
+    DoctorCardModule,
+    DoctorSpecializationModule,
   ],
 })
 export class AppModule {}

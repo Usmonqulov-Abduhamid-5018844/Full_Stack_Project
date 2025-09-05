@@ -66,7 +66,6 @@ model Doctors {
   image String
   isAvtive Boolean @default(false)
   region String
-  specialization_id Int
 }
 
 model Doctor_services {
@@ -90,10 +89,24 @@ model Wellet {
   updated_at DateTime @updatedAt
 }
 
+model Doctor_specialization {
+  id Int @id @default(autoincrement())
+  doctor_id Int
+  specialization_id Int
+}
+
 model Specialization {
   id Int @id @default(autoincrement())
   name String
   desc String
+}
+model Doctor_card {
+  id Int @id @default(autoincrement())
+  doctor_id Int
+  card_name String
+  card_number Int
+  expire_month String
+  expire_year String
 }
 
 model Doctor_file {
@@ -128,6 +141,16 @@ model Patients {
   password String
   age Int
   image String
+}
+
+model Patients_card {
+  id Int @id @default(autoincrement())
+  patients_id Int
+  card_name String
+  card_number Int
+  expire_month String
+  expire_year String
+
 }
 
 model Tibbiy_korik {

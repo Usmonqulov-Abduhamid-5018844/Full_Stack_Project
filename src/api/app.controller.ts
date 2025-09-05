@@ -4,8 +4,8 @@ import { Controller, Get } from "@nestjs/common";
 export class AppController {
     constructor(){}
 
-  @Get("/")
-  start(){
-     return 'Assalomu alaykum';
-  }  
+  @Get()
+    getRoot() {
+    return { message: 'Backend is running 🚀' };
+  } 
 }

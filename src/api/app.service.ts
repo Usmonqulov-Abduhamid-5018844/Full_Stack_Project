@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from 'src/infrostructure/exceoption/AllErrorFilter';
 
-const Port = Number(process.env.PORT) || 3000
+const Port = Number(process.env.PORT) || 4000
 
 @Injectable()
 export default class AppService {

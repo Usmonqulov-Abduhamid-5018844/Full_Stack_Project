@@ -16,6 +16,7 @@ import { DoctorFileModule } from './doctor_file/doctor_file.module';
 import { DoctorSchedulesModule } from './doctor_schedules/doctor_schedules.module';
 
 @Module({
+  controllers:[],
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     PrismaModule,

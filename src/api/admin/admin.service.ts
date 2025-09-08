@@ -1,4 +1,6 @@
 import {
+  BadGatewayException,
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -10,10 +12,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { successRes } from 'src/infrostructure/utils/succesResponse';
 import { LoginAdminDto } from './dto/login-admin.dto';
+import { Token } from 'src/infrostructure/utils/Token';
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly TokenGenerate : Token,
+    private readonly prisma: PrismaService
+  ) {}
 
   async create(createAdminDto: CreateAdminDto) {
     const { full_name, phone, password } = createAdminDto;
@@ -28,7 +34,6 @@ export class AdminService {
       const newdata = await this.prisma.admins.create({
         data: { ...createAdminDto, password: heshpass },
       });
-      console.log(newdata);
 
       return successRes(newdata, 201);
     } catch (error) {
@@ -38,7 +43,25 @@ export class AdminService {
 
   async login(data: LoginAdminDto){
     try {
-      
+      const Data = await this.prisma.admins.findFirst({where:{phone: data.phone}})
+      if(!Data){
+        throw new NotFoundException
+      }
+      if(data.login !== Data.login) {
+        throw new BadGatewayException("Wrong login")
+      }
+      if(!(bcrypt.compareSync(data.password, Data.password))){
+        throw new BadRequestException("wrong login or password")
+      }
+      const AcsesToken = this.TokenGenerate.AcsesToken({
+        id: Data.id,
+        role: Data.role
+      })
+      const RefreshToken = this.TokenGenerate.RefreshToken({
+        id: Data.id,
+        role: Data.role
+      })
+      return {AcsesToken, RefreshToken}
     } catch (error) {
       return ErrorHender(error)
     }

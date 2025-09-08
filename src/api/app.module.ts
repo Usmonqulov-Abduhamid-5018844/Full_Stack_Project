@@ -18,10 +18,12 @@ import { AppController } from './app.controller';
 import { PatientsCardModule } from './patients_card/patients_card.module';
 import { DoctorCardModule } from './doctor_card/doctor_card.module';
 import { DoctorSpecializationModule } from './doctor_specialization/doctor_specialization.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   controllers:[AppController],
   imports: [
+    JwtModule.register({global: true}),
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     PrismaModule,
     DoctorModule,

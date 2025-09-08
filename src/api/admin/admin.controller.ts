@@ -55,9 +55,9 @@ export class AdminController implements OnModuleInit {
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
   }
-  @Post("login")
-  login(@Body() login: LoginAdminDto){
-    return this.adminService.login(login)
+  @Post('login')
+  login(@Body() login: LoginAdminDto) {
+    return this.adminService.login(login);
   }
 
   @ApiOperation({ summary: 'Supper Admin uchun' })
@@ -82,6 +82,7 @@ export class AdminController implements OnModuleInit {
     return this.adminService.update(+id, updateAdminDto);
   }
 
+  @ApiOperation({ summary: 'Supper Admin uchun' })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.adminService.remove(+id);

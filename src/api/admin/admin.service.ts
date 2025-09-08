@@ -1,26 +1,128 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
+import { ErrorHender } from 'src/infrostructure/utils/catchError';
+import { PrismaService } from '../prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
+import { successRes } from 'src/infrostructure/utils/succesResponse';
+import { LoginAdminDto } from './dto/login-admin.dto';
 
 @Injectable()
 export class AdminService {
-  create(createAdminDto: CreateAdminDto) {
-    return 'This action adds a new admin';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createAdminDto: CreateAdminDto) {
+    const { full_name, phone, password } = createAdminDto;
+    try {
+      const data = await this.prisma.admins.findFirst({
+        where: { full_name, phone },
+      });
+      if (data) {
+        throw new ConflictException('Alredy exists');
+      }
+      const heshpass = bcrypt.hashSync(password, 10);
+      const newdata = await this.prisma.admins.create({
+        data: { ...createAdminDto, password: heshpass },
+      });
+      console.log(newdata);
+
+      return successRes(newdata, 201);
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 
-  findAll() {
-    return `This action returns all admin`;
+  async login(data: LoginAdminDto){
+    try {
+      
+    } catch (error) {
+      return ErrorHender(error)
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} admin`;
+  async findAll(query: Record<string, any>) {
+    try {
+      const {
+        full_name,
+        phone,
+        sortBy = 'full_name',
+        order = 'ASC',
+        page = 1,
+        limit = 10,
+      } = query;
+
+      const where: any = {};
+
+      if (full_name) {
+        where.full_name = { contains: full_name, mode: 'insensitive' };
+      }
+      if (phone) {
+        where.phone = { contains: phone, mode: 'insensitive' };
+      }
+
+      const data = await this.prisma.admins.findMany({
+        where,
+        orderBy: {
+          [sortBy]: order.toLowerCase(),
+        },
+        skip: (page - 1) * limit,
+        take: Number(limit),
+      });
+      if (!data.length) {
+        throw new NotFoundException();
+      }
+      return successRes(data);
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 
-  update(id: number, updateAdminDto: UpdateAdminDto) {
-    return `This action updates a #${id} admin`;
+  async findOne(id: number) {
+    try {
+      const data = await this.prisma.admins.findUnique({ where: { id } });
+      if (!data) {
+        throw new NotFoundException();
+      }
+      return data;
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} admin`;
+  async update(id: number, updateAdminDto: UpdateAdminDto) {
+    try {
+      const data = await this.prisma.admins.findFirst({ where: { id } });
+      if (!data) {
+        throw new NotFoundException();
+      }
+      const newData = {
+        ...updateAdminDto,
+        password: bcrypt.hashSync(updateAdminDto.password, 10),
+      };
+      const Data = await this.prisma.admins.update({
+        where: { id },
+        data: { ...newData },
+      });
+      return successRes(data);
+    } catch (error) {
+      return ErrorHender(error);
+    }
+  }
+
+  async remove(id: number) {
+    try {
+      const data = await this.prisma.admins.findFirst({ where: { id } });
+      if (!data) {
+        throw new NotFoundException();
+      }
+      await this.prisma.admins.delete({ where: { id } });
+      return { message: 'delete', statusCode: 200 };
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 }

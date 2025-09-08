@@ -44,8 +44,10 @@ model Admins {
   id Int @id @default(autoincrement())
   full_name String
   phone String 
+  password String
+  login String
   status EAdminStatus @default(active)
-  image String
+  image String?
   role EAdminRoles @default(admin)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -63,7 +65,7 @@ model Doctors {
   password String
   date_of_birth String
   gender String
-  image String
+  image String?
   isAvtive Boolean @default(false)
   region String
 }
@@ -140,7 +142,7 @@ model Patients {
   gender String
   password String
   age Int
-  image String
+  image String?
 }
 
 model Patients_card {

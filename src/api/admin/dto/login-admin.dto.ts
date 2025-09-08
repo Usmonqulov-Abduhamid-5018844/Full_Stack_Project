@@ -13,4 +13,10 @@ export class LoginAdminDto {
     @IsNotEmpty()
     login: string
 
+    @ApiProperty({example: "+998930451852"})
+    @IsString()
+    @IsPhoneNumber("UZ")
+    @IsNotEmpty()
+    phone: string
+
 }

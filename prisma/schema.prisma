@@ -3,20 +3,24 @@ enum EAdminStatus {
   in_active
   block
 }
+
 enum EAdminRoles {
   admin
   supper_admin
 }
+
 enum EAppointments {
-    pending
-    confirmed
-    completed
-    cancelled
+  pending
+  confirmed
+  completed
+  cancelled
 }
+
 enum ECommentSender {
   doctor
   patients
 }
+
 enum EDoctor {
   Dushanba
   Seshanba
@@ -27,9 +31,6 @@ enum EDoctor {
   Yakshanba
 }
 
-
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -39,174 +40,211 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Admins {
-  id Int @id @default(autoincrement())
-  full_name String
-  phone String 
-  password String
-  login String
-  status EAdminStatus @default(active)
-  image String?
-  role EAdminRoles @default(admin)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id         Int          @id @default(autoincrement())
+  full_name  String
+  phone      String
+  password   String
+  login      String
+  status     EAdminStatus @default(active)
+  image      String?
+  role       EAdminRoles  @default(admin)
+  created_at DateTime     @default(now())
+  updated_at DateTime     @updatedAt
 }
 
 model Doctors {
-  id Int @id @default(autoincrement())
-  first_name String
-  last_name String
-  bio String
-  verified Boolean @default(false)
-  reyting Int
-  experience_years Int
-  phone String
-  password String
-  date_of_birth String
-  gender String
-  image String?
-  isAvtive Boolean @default(false)
-  region String
+  id                    Int                     @id @default(autoincrement())
+  first_name            String?
+  last_name             String?
+  bio                   String?
+  verified              Boolean               @default(false)
+  reyting               Int?
+  experience_years      Int?
+  phone                 String?
+  password              String?
+  date_of_birth         String?
+  gender                String?
+  image                 String?
+  isAvtive              Boolean                 @default(false)
+  region                String?
+  service               Doctor_services[]
+  Wellet                Wellet[]
+  Doctor_specialization Doctor_specialization[]
+  Doctor_card           Doctor_card[]
+  Doctor_file           Doctor_file[]
+  doctor_schedules      doctor_schedules[]
+  Patients_card         Patients_card[]
+  Tibbiy_korik          Tibbiy_korik[]
+  Appointments          Appointments[]
+  Comment               Comment[]
+  Payments              Payments[]
 }
 
 model Doctor_services {
-  id Int @id @default(autoincrement())
-  doctor_id Int
+  id              Int            @id @default(autoincrement())
+  doctor_id       Int
   service_type_id Int
-  price Decimal
+  price           Decimal
+  doctor          Doctors        @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  service_type    Service_type   @relation(fields: [service_type_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Appointments    Appointments[]
 }
 
 model Service_type {
-  id Int @id @default(autoincrement())
+  id           Int               @id @default(autoincrement())
   service_name String
-  desc String
+  desc         String
+  doctot       Doctor_services[]
 }
 
 model Wellet {
-  id Int @id @default(autoincrement())
-  doctor_id Int
-  balance Decimal
+  id         Int      @id @default(autoincrement())
+  doctor_id  Int
+  balance    Decimal
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  doctot     Doctors  @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Doctor_specialization {
-  id Int @id @default(autoincrement())
-  doctor_id Int
+  id                Int            @id @default(autoincrement())
+  doctor_id         Int
   specialization_id Int
+  doctot            Doctors        @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  specialization    Specialization @relation(fields: [specialization_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Specialization {
-  id Int @id @default(autoincrement())
-  name String
-  desc String
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  desc                  String
+  Doctor_specialization Doctor_specialization[]
 }
+
 model Doctor_card {
-  id Int @id @default(autoincrement())
-  doctor_id Int
-  card_name String
-  card_number Int
+  id           Int     @id @default(autoincrement())
+  doctor_id    Int
+  card_name    String
+  card_number  Int
   expire_month String
-  expire_year String
+  expire_year  String
+  doctor       Doctors @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Doctor_file {
-  id Int @id @default(autoincrement())
-  passport_file String
-  diplom_file String
-  yatt_file String
-  sertifikat_file String
+  id                Int      @id @default(autoincrement())
+  passport_file     String
+  diplom_file       String
+  yatt_file         String
+  sertifikat_file   String
   tibiy_varaqa_file String
-  doctor_id Int
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  doctor_id         Int
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  doctor            Doctors  @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model doctor_schedules {
-  id Int @id @default(autoincrement())
-  doctor_id Int
-  day_of_week EDoctor
-  start_time String
-  end_time String
+  id           Int     @id @default(autoincrement())
+  doctor_id    Int
+  day_of_week  EDoctor
+  start_time   String
+  end_time     String
   is_available Boolean @default(false)
+  doctor       Doctors @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-
-
 model Patients {
-  id Int @id @default(autoincrement())
-  first_name String
-  last_name String
-  phone String
-  gender String
-  password String
-  age Int
-  image String?
+  id           Int            @id @default(autoincrement())
+  first_name   String
+  last_name    String
+  phone        String
+  gender       String
+  password     String
+  age          Int
+  image        String?
+  Tibbiy       Tibbiy_korik[]
+  Appointments Appointments[]
+  Comment      Comment[]
+  Payments     Payments[]
 }
 
 model Patients_card {
-  id Int @id @default(autoincrement())
-  patients_id Int
-  card_name String
-  card_number Int
+  id           Int     @id @default(autoincrement())
+  patients_id  Int
+  card_name    String
+  card_number  Int
   expire_month String
-  expire_year String
-
+  expire_year  String
+  patients     Doctors @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Tibbiy_korik {
-  id Int @id @default(autoincrement())
-  sana String
-  ish_vaqti String
-  vazni Int
-  boyi Int
-  qabuldagi_shikoyat String
-  Anamnesis_morbi String
-  Anamnesis_vitae String
-  Epidemiologik_tarix String
+  id                         Int      @id @default(autoincrement())
+  sana                       String
+  ish_vaqti                  String
+  vazni                      Int
+  boyi                       Int
+  qabuldagi_shikoyat         String
+  Anamnesis_morbi            String
+  Anamnesis_vitae            String
+  Epidemiologik_tarix        String
   Status_praesens_objectivus String
-  Tashxis String
-  Tekshiruv String
-  Tibbiy_tavsiyalar String
-  doctor_id Int
-  patients_id Int
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  Tashxis                    String
+  Tekshiruv                  String
+  Tibbiy_tavsiyalar          String
+  doctor_id                  Int
+  patients_id                Int
+  created_at                 DateTime @default(now())
+  updated_at                 DateTime @updatedAt
+
+  Patients   Patients? @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  patientsId Int?
+  doctor     Doctors   @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Appointments {
-  id Int @id @default(autoincrement())
-  price Decimal
-  status EAppointments @default(pending)
-  quantity Int
+  id               Int           @id @default(autoincrement())
+  price            Decimal
+  status           EAppointments @default(pending)
+  quantity         Int
   appointment_date String
-  doctor_id Int
-  patient_id Int 
-  service_id Int
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  doctor_id        Int
+  patient_id       Int
+  service_id       Int
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+  doctor           Doctors       @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  patient Patients @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  service Doctor_services @relation(fields: [service_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Comment {
-  id Int @id @default(autoincrement())
-  message String
-  star Int
-  sender ECommentSender
+  id          Int            @id @default(autoincrement())
+  message     String
+  star        Int
+  sender      ECommentSender
   patients_id Int
-  doctor_id Int
-  created_at DateTime @default(now())
+  doctor_id   Int
+  created_at  DateTime       @default(now())
+  patients    Patients       @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  doctor      Doctors        @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Payments {
-  id Int @id @default(autoincrement())
-  provider String
-  card_last4 Int
-  card_brand String
-  card_token String
-  is_default Boolean
-  doctor_id Int
+  id          Int      @id @default(autoincrement())
+  provider    String
+  card_last4  Int
+  card_brand  String
+  card_token  String
+  is_default  Boolean
+  doctor_id   Int
   patients_id Int
-  created_at DateTime @default(now())
-}
+  created_at  DateTime @default(now())
 
+  patients Patients @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  doctot   Doctors  @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}

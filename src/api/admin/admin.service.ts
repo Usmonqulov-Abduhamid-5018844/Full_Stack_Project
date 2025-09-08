@@ -13,12 +13,15 @@ import * as bcrypt from 'bcrypt';
 import { successRes } from 'src/infrostructure/utils/succesResponse';
 import { LoginAdminDto } from './dto/login-admin.dto';
 import { Token } from 'src/infrostructure/utils/Token';
+import { FileService } from '../file/file.service';
+import { ImageValidation } from 'src/common/pipe/image_validation';
 
 @Injectable()
 export class AdminService {
   constructor(
     private readonly TokenGenerate : Token,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly fileService: FileService,
   ) {}
 
   async create(createAdminDto: CreateAdminDto) {
@@ -116,23 +119,49 @@ export class AdminService {
     }
   }
 
-  async update(id: number, updateAdminDto: UpdateAdminDto) {
+  async update(id: number, updateAdminDto: UpdateAdminDto, file: Express.Multer.File) {
+    let newimage: string | null = null
     try {
       const data = await this.prisma.admins.findFirst({ where: { id } });
       if (!data) {
+  
         throw new NotFoundException();
       }
-      const newData = {
-        ...updateAdminDto,
-        password: bcrypt.hashSync(updateAdminDto.password, 10),
-      };
-      const Data = await this.prisma.admins.update({
-        where: { id },
-        data: { ...newData },
-      });
-      return successRes(data);
+       let newData: any = ""
+      if(updateAdminDto.password){
+        newData = {
+          ...updateAdminDto,
+          password: bcrypt.hashSync(updateAdminDto.password, 10),
+        };
+      }
+      if(file && new ImageValidation().transform(file)){
+        newimage = await this.fileService.createFile(file)
+
+        const Data = await this.prisma.admins.update({
+          where: { id },
+          data: { ...newData, image: newimage}
+        });
+        if(data.image){
+           await this.fileService.deleteFile(data.image)
+        }
+      }
+      else{
+         const Data = await this.prisma.admins.update({
+          where: { id },
+          data: { ...newData },
+        });
+      }
+      const newsData = await this.prisma.admins.findUnique({where: {id}})
+      if(!newsData){
+        throw new NotFoundException()
+      }
+      return successRes(newsData)
     } catch (error) {
+      if(newimage){
+        await this.fileService.deleteFile(newimage).catch(()=> {})
+      }
       return ErrorHender(error);
+      
     }
   }
 
@@ -143,6 +172,9 @@ export class AdminService {
         throw new NotFoundException();
       }
       await this.prisma.admins.delete({ where: { id } });
+      if(data.image){
+        await this.fileService.deleteFile(data.image).catch(()=> {})
+      }
       return { message: 'delete', statusCode: 200 };
     } catch (error) {
       return ErrorHender(error);

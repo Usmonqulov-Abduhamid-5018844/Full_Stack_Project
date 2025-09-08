@@ -19,14 +19,22 @@ import { PatientsCardModule } from './patients_card/patients_card.module';
 import { DoctorCardModule } from './doctor_card/doctor_card.module';
 import { DoctorSpecializationModule } from './doctor_specialization/doctor_specialization.module';
 import { JwtModule } from '@nestjs/jwt';
+import { FileModule } from './file/file.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { resolve } from 'path';
 
 @Module({
-  controllers:[AppController],
+  controllers: [AppController],
   imports: [
-    JwtModule.register({global: true}),
+    ServeStaticModule.forRoot({
+      rootPath: resolve(__dirname, '..', '..', '..', 'uplout'),
+      serveRoot: '/uplout',
+    }),
+    JwtModule.register({ global: true }),
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     PrismaModule,
     DoctorModule,
+    FileModule,
     AdminModule,
     PatientsModule,
     TibbiyKorikModule,

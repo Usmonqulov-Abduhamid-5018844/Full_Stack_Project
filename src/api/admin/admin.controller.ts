@@ -8,6 +8,8 @@ import {
   Delete,
   OnModuleInit,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -15,8 +17,10 @@ import { UpdateAdminDto } from './dto/update-admin.dto';
 import { EAdminStatus, EAdminRoles } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { LoginAdminDto } from './dto/login-admin.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ImageValidation } from 'src/common/pipe/image_validation';
 
 @Controller('admin')
 export class AdminController implements OnModuleInit {
@@ -77,9 +81,44 @@ export class AdminController implements OnModuleInit {
     return this.adminService.findOne(+id);
   }
 
+  
+  @ApiOperation({
+    summary: 'Update admin',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema:{
+      type: "object",
+      properties:{
+      full_name: {
+        type: "string",
+        example: "Usmonqulov Abduhamid"
+      },
+      phone: {
+        type:"string",
+        example: "+998930451852",
+      },
+      login: {
+        type: "string",
+        example:" Abduhamid"
+      },
+      password: {
+        type: "string",
+        example: "12345678"
+      },
+      image: {
+        type: "string",
+        format: "binary"
+      }
+    }
+    }
+  })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
+  @UseInterceptors(FileInterceptor("image"))
+  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto ,
+  @UploadedFile() file: Express.Multer.File,
+) {
+    return this.adminService.update(+id, updateAdminDto, file);
   }
 
   @ApiOperation({ summary: 'Supper Admin uchun' })

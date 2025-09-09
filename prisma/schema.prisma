@@ -58,10 +58,10 @@ model Doctors {
   first_name            String?
   last_name             String?
   bio                   String?
-  verified              Boolean               @default(false)
+  verified              Boolean                 @default(false)
   reyting               Int?
   experience_years      Int?
-  phone                 String?
+  phone                 String?                 @unique
   password              String?
   date_of_birth         String?
   gender                String?

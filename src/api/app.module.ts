@@ -22,6 +22,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { FileModule } from './file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve } from 'path';
+import { FileDeleteModule } from './file_delete/file_delete.module';
 
 @Module({
   controllers: [AppController],
@@ -29,6 +30,9 @@ import { resolve } from 'path';
     ServeStaticModule.forRoot({
       rootPath: resolve(__dirname, '..', '..', '..', 'uplout'),
       serveRoot: '/uplout',
+      serveStaticOptions:{
+        fallthrough: false,
+      }
     }),
     JwtModule.register({ global: true }),
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
@@ -50,6 +54,7 @@ import { resolve } from 'path';
     PatientsCardModule,
     DoctorCardModule,
     DoctorSpecializationModule,
+    FileDeleteModule,
   ],
 })
 export class AppModule {}

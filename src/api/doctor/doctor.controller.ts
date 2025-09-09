@@ -9,11 +9,13 @@ import {
   UploadedFile,
   UseInterceptors,
   UploadedFiles,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { DoctorService } from './doctor.service';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { OtpDoctorDto } from './dto/otp-doctor.dto';
-import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import {
   FileFieldsInterceptor,
   FileInterceptor,
@@ -21,6 +23,12 @@ import {
 import { FileValidation } from 'src/common/pipe/file_validationPipe';
 import { DoctorIdDto } from './dto/doctor_id.dto';
 import { cretedDoctorDto } from './dto/creted-doctor.dto';
+import { EDoctorGender, ERegion, ERols } from 'src/common/enum';
+import { Request } from 'express';
+import { SelfGuard } from 'src/common/Guard/self.guard';
+import { AuthGuard } from 'src/common/Guard/auth.guard';
+import { RoleGuard } from 'src/common/Guard/role.guard';
+import { Roles } from 'src/common/Decorator/Role.decorator';
 
 @Controller('doctor')
 export class DoctorController {
@@ -76,11 +84,17 @@ export class DoctorController {
     return this.doctorService.add_files(files, body);
   }
 
-  @Post("login")
-  login(@Body() data: cretedDoctorDto){
-    return this.doctorService.login(data)
-
+  @Post('login')
+  login(@Body() data: cretedDoctorDto) {
+    return this.doctorService.login(data);
   }
+
+  @ApiOperation({ summary: 'Admin yoki Supper_admin uchun' })
+  @Patch('doctor/active/:id')
+  updateDoctorActive(@Param('id') id: string) {
+    return this.doctorService.doctor_active(+id);
+  }
+
   @Get()
   findAll() {
     return this.doctorService.findAll();
@@ -91,9 +105,50 @@ export class DoctorController {
     return this.doctorService.findOne(+id);
   }
 
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.DOCTOR)
+  @Patch('doctor/working/status')
+  doctorworking(@Req() req: Request) {
+    return this.doctorService.doctorWorking(req);
+  }
+
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        first_name: { type: 'string', example: 'Ali' },
+        last_name: { type: 'string', example: 'Valiyev' },
+        bio: { type: 'string', example: '10 yillik tajribaga ega shifokor' },
+        experience_years: { type: 'integer', example: 5 },
+        phone: { type: 'string', example: '+998930451852' },
+        password: { type: 'string', example: 'myStrongPass123' },
+        date_of_birth: {
+          type: 'string',
+          format: 'date-time',
+          example: '1990-05-12T00:00:00.000Z',
+        },
+        gender: {
+          type: 'string',
+          enum: Object.values(EDoctorGender),
+        },
+        region: {
+          type: 'string',
+          enum: Object.values(ERegion),
+          example: ERegion.TOSHKENT,
+        },
+        image: { type: 'string', format: 'binary' },
+      },
+    },
+  })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDoctorDto: UpdateDoctorDto) {
-    return this.doctorService.update(+id, updateDoctorDto);
+  @UseInterceptors(FileInterceptor('image'))
+  update(
+    @Param('id') id: string,
+    @Body() updateDoctorDto: UpdateDoctorDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.doctorService.update(+id, updateDoctorDto, file);
   }
 
   @Delete(':id')

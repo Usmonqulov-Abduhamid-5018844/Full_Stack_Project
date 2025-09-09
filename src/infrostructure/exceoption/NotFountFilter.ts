@@ -12,9 +12,15 @@ export class NotFoundFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
+    const errorResponse = exception.getResponse();
+    const message =
+      typeof errorResponse === 'string'
+        ? errorResponse
+        : (errorResponse as any).message || exception.message;
+
     response.status(404).json({
       statusCode: 404,
-      message: 'File not found',
+      message,
     });
   }
 }

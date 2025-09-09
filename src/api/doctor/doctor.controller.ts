@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { DoctorService } from './doctor.service';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
-import { LoginDoctorDto } from './dto/login-doctor.dto';
 import { OtpDoctorDto } from './dto/otp-doctor.dto';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import {
@@ -20,13 +19,15 @@ import {
   FileInterceptor,
 } from '@nestjs/platform-express';
 import { FileValidation } from 'src/common/pipe/file_validationPipe';
+import { DoctorIdDto } from './dto/doctor_id.dto';
+import { cretedDoctorDto } from './dto/creted-doctor.dto';
 
 @Controller('doctor')
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 
   @Post('creted')
-  create(@Body() createDoctorDto: LoginDoctorDto) {
+  create(@Body() createDoctorDto: cretedDoctorDto) {
     return this.doctorService.create(createDoctorDto);
   }
   @Post('verify_otp')
@@ -40,7 +41,7 @@ export class DoctorController {
       type: 'object',
       properties: {
         id: {
-          type: 'number',
+          type: 'string',
           example: 1,
         },
         passport_file: { type: 'string', format: 'binary' },
@@ -62,7 +63,7 @@ export class DoctorController {
     ]),
   )
   add_files(
-    @Param("id") id: number,
+    @Body() body: DoctorIdDto,
     @UploadedFiles(FileValidation)
     files: {
       passport_file?: Express.Multer.File[];
@@ -72,9 +73,14 @@ export class DoctorController {
       tibiy_varaqa_file?: Express.Multer.File[];
     },
   ) {
-    return this.doctorService.add_files(files, id);
+    return this.doctorService.add_files(files, body);
   }
 
+  @Post("login")
+  login(@Body() data: cretedDoctorDto){
+    return this.doctorService.login(data)
+
+  }
   @Get()
   findAll() {
     return this.doctorService.findAll();

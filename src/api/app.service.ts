@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from 'src/infrostructure/exceoption/AllErrorFilter';
+import { NotFoundFilter } from 'src/infrostructure/exceoption/NotFountFilter';
 
 const Port = Number(process.env.PORT) || 4000
 
@@ -11,7 +12,7 @@ export default class AppService {
 
    public static async main(): Promise<void> {
     let app = await NestFactory.create(AppModule);
-    app.useGlobalFilters(new AllExceptionsFilter());
+    app.useGlobalFilters(new AllExceptionsFilter(), new NotFoundFilter());
     app.enableCors({
       origin: '*',
     });

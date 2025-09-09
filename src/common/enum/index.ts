@@ -29,13 +29,13 @@ export enum ECommentSender {
 }
 
 export enum EDoctor {
-  'Dushanba',
-  'Seshanba',
-  'Chorshanba',
-  'payshanba',
-  'Juma',
-  'Shanba',
-  'Yakshanba',
+  Dushanba = 'Dushanba',
+  Seshanba = 'Seshanba',
+  Chorshanba = 'Chorshanba',
+  Payshanba = 'Payshanba',
+  Juma = 'Juma',
+  Shanba = 'Shanba',
+  Yakshanba = 'Yakshanba',
 }
 
 export enum EDoctorGender {

@@ -1,15 +1,38 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { DoctorSchedulesService } from './doctor_schedules.service';
 import { CreateDoctorScheduleDto } from './dto/create-doctor_schedule.dto';
 import { UpdateDoctorScheduleDto } from './dto/update-doctor_schedule.dto';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { AuthGuard } from 'src/common/Guard/auth.guard';
+import { RoleGuard } from 'src/common/Guard/role.guard';
+import { Roles } from 'src/common/Decorator/Role.decorator';
+import { EDoctor, ERols } from 'src/common/enum';
+import { Request } from 'express';
 
 @Controller('doctor-schedules')
 export class DoctorSchedulesController {
-  constructor(private readonly doctorSchedulesService: DoctorSchedulesService) {}
+  constructor(
+    private readonly doctorSchedulesService: DoctorSchedulesService,
+  ) {}
 
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.DOCTOR)
   @Post()
-  create(@Body() createDoctorScheduleDto: CreateDoctorScheduleDto) {
-    return this.doctorSchedulesService.create(createDoctorScheduleDto);
+  create(
+    @Body() createDoctorScheduleDto: CreateDoctorScheduleDto,
+    @Req() req: Request,
+  ) {
+    return this.doctorSchedulesService.create(createDoctorScheduleDto, req);
   }
 
   @Get()
@@ -22,8 +45,13 @@ export class DoctorSchedulesController {
     return this.doctorSchedulesService.findOne(+id);
   }
 
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.DOCTOR)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDoctorScheduleDto: UpdateDoctorScheduleDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateDoctorScheduleDto: UpdateDoctorScheduleDto,
+  ) {
     return this.doctorSchedulesService.update(+id, updateDoctorScheduleDto);
   }
 

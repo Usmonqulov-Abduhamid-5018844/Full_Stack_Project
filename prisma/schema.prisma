@@ -21,16 +21,6 @@ enum ECommentSender {
   patients
 }
 
-enum EDoctor {
-  Dushanba
-  Seshanba
-  Chorshanba
-  payshanba
-  Juma
-  Shanba
-  Yakshanba
-}
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -149,7 +139,7 @@ model Doctor_file {
 model doctor_schedules {
   id           Int     @id @default(autoincrement())
   doctor_id    Int
-  day_of_week  EDoctor
+  day_of_week  String
   start_time   String
   end_time     String
   is_available Boolean @default(false)

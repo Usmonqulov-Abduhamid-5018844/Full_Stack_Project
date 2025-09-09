@@ -66,13 +66,13 @@ export class AdminController implements OnModuleInit {
   }
 
   @ApiOperation({ summary: 'Supper Admin uchun' })
-  @Get()
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
   @ApiQuery({ name: 'full_name', required: false })
   @ApiQuery({ name: 'phone', required: false })
   @ApiQuery({ name: 'sortBy', required: false, enum: ['full_name', 'phone'] })
   @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })
+  @Get()
   findAll(@Query() query: Record<string, any>) {
     return this.adminService.findAll(query);
   }

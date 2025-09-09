@@ -17,6 +17,7 @@ import { cretedDoctorDto } from './dto/creted-doctor.dto';
 import { Token } from 'src/infrostructure/utils/Token';
 import { ImageValidation } from 'src/common/pipe/image_validation';
 import { Request } from 'express';
+import { contains } from 'class-validator';
 
 @Injectable()
 export class DoctorService {
@@ -66,17 +67,18 @@ export class DoctorService {
     },
     doctor: DoctorIdDto,
   ) {
+    const {doctor_id} = doctor
     const savetFiles: string[] = [];
     try {
       const data = await this.prisma.doctors.findFirst({
-        where: { id: doctor.id },
+        where: { id: doctor_id },
       });
       if (!data) {
         throw new NotFoundException('doctot id not fount');
       }
 
       const doctor_files = await this.prisma.doctor_file.findFirst({
-        where: { doctor_id: doctor.id },
+        where: { doctor_id},
       });
       const updateFiles: any = {};
 
@@ -136,7 +138,7 @@ export class DoctorService {
         );
       } else {
         const cretDoctorfile = await this.prisma.doctor_file.create({
-          data: { ...updateFiles, doctor_id: doctor.id },
+          data: { ...updateFiles, doctor_id },
         });
         return successRes(
           cretDoctorfile,
@@ -178,9 +180,54 @@ export class DoctorService {
       return ErrorHender(error);
     }
   }
-  async findAll() {
+  async findAll(query: Record<string, any>) {
+    const {
+      first_name,
+      last_name,
+      phone,
+      experience_years,
+      bio,
+      region,
+      page = 1,
+      limit = 10,
+      sortBy = 'first_name',
+      order = 'ASC',
+      gender,
+    } = query;
     try {
+      const where: any = {};
+      if (first_name) {
+        where.file_name = { contains: first_name, mode: 'insensitive' };
+      }
+      if (last_name) {
+        where.last_name = { contains: last_name, mode: 'insensitive' };
+      }
+      if (phone) {
+        where.phone = { contains: phone, mode: 'insensitive' };
+      }
+      if (gender) {
+        where.gender = { contains: gender, mode: 'insensitive' };
+      }
+      if (experience_years) {
+        where.experience_years = {
+          contains: experience_years,
+          mode: 'insensitive',
+        };
+      }
+      if (bio) {
+        where.bio = { contains: bio, mode: 'insensitive' };
+      }
+      if (region) {
+        where.region = { contains: region, mode: 'insensitive' };
+      }
+
       const data = await this.prisma.doctors.findMany({
+        where,
+        orderBy: {
+          [sortBy]: order.toLowerCase(),
+        },
+        skip: (page - 1) * limit,
+        take: Number(limit),
         include: { Doctor_file: true },
       });
       if (!data.length) {
@@ -222,7 +269,7 @@ export class DoctorService {
 
   async doctorWorking(req: Request) {
     try {
-       const userId = req['user']?.id;
+      const userId = req['user']?.id;
       console.log(userId);
       if (!userId) {
         throw new BadRequestException(`User topilmadi yoki token noto'g'ri`);
@@ -245,8 +292,10 @@ export class DoctorService {
           data: { isActive: true },
         });
       }
-      const updatedata = await this.prisma.doctors.findUnique({where: {id: data.id}})
-      return successRes(updatedata)
+      const updatedata = await this.prisma.doctors.findUnique({
+        where: { id: data.id },
+      });
+      return successRes(updatedata);
     } catch (error) {
       console.log(error);
       return ErrorHender(error);
@@ -262,6 +311,16 @@ export class DoctorService {
       const doctor = await this.prisma.doctors.findUnique({ where: { id } });
       if (!doctor) {
         throw new NotFoundException('Not Found Doctor id');
+      }
+      if (updateDoctorDto.phone) {
+        const existPhone = await this.prisma.doctors.findUnique({
+          where: { phone: updateDoctorDto.phone },
+        });
+        if (existPhone && existPhone.id !== id) {
+          throw new ConflictException(
+            "Bunday telefon raqam avval ro'yxatdan o'tgan",
+          );
+        }
       }
 
       let updateData: any = { ...updateDoctorDto };

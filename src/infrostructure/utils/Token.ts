@@ -7,13 +7,13 @@ export class Token {
 
     AcsesToken(peload: {id: number, role: string}){
         return this.jwt.sign(peload,{
-            secret: String(process.env.ACSES_SECRET),
+            secret: String(process.env.ACSES_SECRET || "acses_key"),
             expiresIn: "30d"
         })
     }
     RefreshToken(peload: {id: number, role: string}){
         return this.jwt.sign(peload, {
-            secret: String(process.env.REFRESH_SECRET),
+            secret: String(process.env.REFRESH_SECRET || "refresh_key"),
             expiresIn: "1h"
         })
     }

@@ -43,7 +43,7 @@ datasource db {
 model Admins {
   id         Int          @id @default(autoincrement())
   full_name  String
-  phone      String
+  phone      String       @unique
   password   String
   login      String
   status     EAdminStatus @default(active)
@@ -59,14 +59,15 @@ model Doctors {
   last_name             String?
   bio                   String?
   verified              Boolean                 @default(false)
-  reyting               Int?
+  reyting               Int?                    @default(0)
   experience_years      Int?
   phone                 String?                 @unique
   password              String?
-  date_of_birth         String?
+  role                  String                  @default("doctor")
+  date_of_birth         DateTime?
   gender                String?
   image                 String?
-  isAvtive              Boolean                 @default(false)
+  isActive              Boolean                 @default(false)
   region                String?
   service               Doctor_services[]
   Wellet                Wellet[]
@@ -157,12 +158,13 @@ model doctor_schedules {
 
 model Patients {
   id           Int            @id @default(autoincrement())
-  first_name   String
-  last_name    String
-  phone        String
-  gender       String
-  password     String
-  age          Int
+  first_name   String?
+  last_name    String?
+  phone        String?        @unique
+  gender       String?
+  role         String         @default("patients")
+  password     String?
+  age          Int?
   image        String?
   Tibbiy       Tibbiy_korik[]
   Appointments Appointments[]

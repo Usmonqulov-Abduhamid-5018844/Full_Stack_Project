@@ -55,6 +55,7 @@ export class AdminController implements OnModuleInit {
     }
   }
 
+  @ApiOperation({summary: "Supper admin uchun"})
   @Post('creted')
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);

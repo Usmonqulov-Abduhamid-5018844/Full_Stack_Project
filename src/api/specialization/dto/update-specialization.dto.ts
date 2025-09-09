@@ -1,4 +1,18 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateSpecializationDto } from './create-specialization.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class UpdateSpecializationDto extends PartialType(CreateSpecializationDto) {}
+export class UpdateSpecializationDto {
+  @ApiProperty({ example: 'Nevropatolog', description: 'Mutaxassislik nomi' })
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @ApiProperty({
+    example: `Asab tizimi kasalliklari bilan shug'ullanadigan mutaxassis`,
+    description: 'Mutaxassislik haqida qisqa izoh',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  desc?: string;
+}

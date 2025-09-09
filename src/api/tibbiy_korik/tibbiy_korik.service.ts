@@ -1,26 +1,76 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { CreateTibbiyKorikDto } from './dto/create-tibbiy_korik.dto';
 import { UpdateTibbiyKorikDto } from './dto/update-tibbiy_korik.dto';
+import { ErrorHender } from 'src/infrostructure/utils/catchError';
+import { PrismaService } from '../prisma/prisma.service';
+import { successRes } from 'src/infrostructure/utils/succesResponse';
+import { Request } from 'express';
 
 @Injectable()
 export class TibbiyKorikService {
-  create(createTibbiyKorikDto: CreateTibbiyKorikDto) {
-    return 'This action adds a new tibbiyKorik';
+  constructor(private readonly prisma: PrismaService) {}
+  async create(createTibbiyKorikDto: CreateTibbiyKorikDto, req:Request) {
+    const doctor_id = req["user"].id
+    try {
+      const data = await this.prisma.tibbiy_korik.create({
+        data: { ...createTibbiyKorikDto, doctor_id },
+      });
+      return successRes(data, 201);
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 
-  findAll() {
-    return `This action returns all tibbiyKorik`;
+  async findAll() {
+    try {
+      const data = await this.prisma.tibbiy_korik.findMany();
+      if (!data.length) {
+        throw new NotAcceptableException();
+      }
+      return successRes(data);
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tibbiyKorik`;
+  async findOne(id: number) {
+    try {
+      const data = await this.prisma.tibbiy_korik.findUnique({ where: { id } });
+      if (!data) {
+        throw new NotAcceptableException();
+      }
+      return successRes(data);
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 
-  update(id: number, updateTibbiyKorikDto: UpdateTibbiyKorikDto) {
-    return `This action updates a #${id} tibbiyKorik`;
+  async update(id: number, updateTibbiyKorikDto: UpdateTibbiyKorikDto) {
+    try {
+      const data = await this.prisma.tibbiy_korik.findUnique({ where: { id } });
+      if (!data) {
+        throw new NotAcceptableException();
+      }
+      const newData = await this.prisma.tibbiy_korik.update({
+        where: { id },
+        data: { ...updateTibbiyKorikDto },
+      });
+      return successRes(newData);
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tibbiyKorik`;
+  async remove(id: number) {
+    try {
+      const data = await this.prisma.tibbiy_korik.findUnique({ where: { id } });
+      if (!data) {
+        throw new NotAcceptableException();
+      }
+      await this.prisma.tibbiy_korik.delete({ where: { id } });
+      return { message: 'Deleted', statusCode: 200 };
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 }

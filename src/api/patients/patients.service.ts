@@ -76,11 +76,42 @@ export class PatientsService {
     }
   }
 
-  async findAll() {
+  async findAll(query: Record<string, any>) {
+    const {
+      first_name,
+      last_name,
+      phone,
+      page = 1,
+      limit = 10,
+      sortBy = 'first_name',
+      order = 'ASC',
+      gender,
+    } = query;
     try {
-      const data = await this.prisma.patients.findMany();
+      const where: any = {};
+      if (first_name) {
+        where.file_name = { contains: first_name, mode: 'insensitive' };
+      }
+      if (last_name) {
+        where.last_name = { contains: last_name, mode: 'insensitive' };
+      }
+      if (phone) {
+        where.phone = { contains: phone, mode: 'insensitive' };
+      }
+      if (gender) {
+        where.gender = { contains: gender, mode: 'insensitive' };
+      }
+
+      const data = await this.prisma.patients.findMany({
+        where,
+        orderBy: {
+          [sortBy]: order.toLowerCase(),
+        },
+        skip: (page - 1) * limit,
+        take: Number(limit),
+      });
       if (!data.length) {
-        throw new NotFoundException("Not Fount users");
+        throw new NotFoundException('Not Fount users');
       }
       return successRes(data);
     } catch (error) {
@@ -92,7 +123,7 @@ export class PatientsService {
     try {
       const data = await this.prisma.patients.findUnique({ where: { id } });
       if (!data) {
-        throw new NotFoundException("Not fount user by id");
+        throw new NotFoundException('Not fount user by id');
       }
       return successRes(data);
     } catch (error) {
@@ -108,7 +139,17 @@ export class PatientsService {
     try {
       const data = await this.prisma.patients.findUnique({ where: { id } });
       if (!data) {
-        throw new NotFoundException("Not Fount by id");
+        throw new NotFoundException('Not Fount by id');
+      }
+      if (updatePatientDto.phone) {
+        const existPhone = await this.prisma.patients.findUnique({
+          where: { phone: updatePatientDto.phone },
+        });
+        if (existPhone && existPhone.id !== id) {
+          throw new ConflictException(
+            "Bunday telefon raqam avval ro'yxatdan o'tgan",
+          );
+        }
       }
 
       let update: any = { ...updatePatientDto };
@@ -124,7 +165,7 @@ export class PatientsService {
         data: { ...update },
       });
 
-      return successRes(updateUser)
+      return successRes(updateUser);
     } catch (error) {
       return ErrorHender(error);
     }
@@ -134,7 +175,7 @@ export class PatientsService {
     try {
       const data = await this.prisma.patients.findUnique({ where: { id } });
       if (!data) {
-        throw new NotFoundException("Not Fount by id");
+        throw new NotFoundException('Not Fount by id');
       }
       await this.prisma.patients.delete({ where: { id } });
       return { message: 'Deleted', statuscode: 200 };

@@ -11,11 +11,12 @@ import {
   UploadedFiles,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { DoctorService } from './doctor.service';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { OtpDoctorDto } from './dto/otp-doctor.dto';
-import { ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import {
   FileFieldsInterceptor,
   FileInterceptor,
@@ -48,7 +49,7 @@ export class DoctorController {
     schema: {
       type: 'object',
       properties: {
-        id: {
+        doctor_id: {
           type: 'string',
           example: 1,
         },
@@ -95,9 +96,32 @@ export class DoctorController {
     return this.doctorService.doctor_active(+id);
   }
 
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiQuery({ name: 'first_name', required: false })
+  @ApiQuery({ name: 'last_name', required: false })
+  @ApiQuery({ name: 'bio', required: false })
+  @ApiQuery({ name: 'experience_years', required: false })
+  @ApiQuery({ name: 'gender', required: false })
+  @ApiQuery({ name: 'region', required: false })
+  @ApiQuery({ name: 'phone', required: false })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: [
+      'first_name',
+      'bio',
+      'last_name',
+      'experience_years',
+      'phone',
+      'gender',
+      'region',
+    ],
+  })
+  @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })
   @Get()
-  findAll() {
-    return this.doctorService.findAll();
+  findAll(@Query() query: Record<string, any>) {
+    return this.doctorService.findAll(query);
   }
 
   @Get(':id')

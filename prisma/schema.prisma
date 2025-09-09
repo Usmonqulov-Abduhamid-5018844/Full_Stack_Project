@@ -202,7 +202,6 @@ model Tibbiy_korik {
   updated_at                 DateTime @updatedAt
 
   Patients   Patients? @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  patientsId Int?
   doctor     Doctors   @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 

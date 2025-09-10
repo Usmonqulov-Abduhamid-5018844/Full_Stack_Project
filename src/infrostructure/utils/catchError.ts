@@ -6,7 +6,8 @@ export const ErrorHender = (error: any) => {
   }
 
   if (error?.response) {
-    const message = error.response.message || error.message || 'Xatolik yuz berdi';
+    const message =
+      error.response.message || error.message || 'Xatolik yuz berdi';
     const status = error.response.statusCode || 500;
 
     throw new HttpException(message, status);

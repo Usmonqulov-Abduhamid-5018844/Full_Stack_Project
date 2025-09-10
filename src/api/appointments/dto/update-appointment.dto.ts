@@ -21,13 +21,13 @@ export class UpdateAppointmentDto {
   @IsOptional()
   service_id?: number;
 
-@ApiPropertyOptional({
-  example: "pending || confirmend || completed || cancelled",
-  enum: EAppointments,
-  description: 'Yangi appointment statusi',
-  type: String, 
-})
-@IsEnum(EAppointments)
-@IsOptional()
-status?: EAppointments;
+  @ApiPropertyOptional({
+    example: 'pending || confirmend || completed || cancelled',
+    enum: EAppointments,
+    description: 'Yangi appointment statusi',
+    type: String,
+  })
+  @IsEnum(EAppointments)
+  @IsOptional()
+  status?: EAppointments;
 }

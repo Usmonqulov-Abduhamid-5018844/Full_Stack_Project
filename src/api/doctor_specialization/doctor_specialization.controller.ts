@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { DoctorSpecializationService } from './doctor_specialization.service';
 import { CreateDoctorSpecializationDto } from './dto/create-doctor_specialization.dto';
 import { AuthGuard } from 'src/common/Guard/auth.guard';
@@ -8,13 +18,21 @@ import { ERols } from 'src/common/enum';
 
 @Controller('doctor-specialization')
 export class DoctorSpecializationController {
-  constructor(private readonly doctorSpecializationService: DoctorSpecializationService) {}
+  constructor(
+    private readonly doctorSpecializationService: DoctorSpecializationService,
+  ) {}
 
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.DOCTOR)
   @Post()
-  create(@Body() createDoctorSpecializationDto: CreateDoctorSpecializationDto, @Req() req:Record<string,any>) {
-    return this.doctorSpecializationService.create(createDoctorSpecializationDto, req);
+  create(
+    @Body() createDoctorSpecializationDto: CreateDoctorSpecializationDto,
+    @Req() req: Record<string, any>,
+  ) {
+    return this.doctorSpecializationService.create(
+      createDoctorSpecializationDto,
+      req,
+    );
   }
 
   @Get()

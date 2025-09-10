@@ -4,8 +4,8 @@ import { existsSync, mkdirSync, unlink, writeFile } from 'fs';
 import { extname, join, resolve } from 'path';
 import { ErrorHender } from 'src/infrostructure/utils/catchError';
 import { v4 } from 'uuid';
-import * as dotenv from "dotenv"
-dotenv.config()
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Injectable()
 export class FileService {
@@ -18,7 +18,7 @@ export class FileService {
       if (!existsSync(file_path)) {
         mkdirSync(file_path, { recursive: true });
       }
-      
+
       await new Promise<void>((resolve, reject) => {
         writeFile(join(file_path, file_name), file.buffer, (err) => {
           if (err) reject(err);
@@ -28,15 +28,14 @@ export class FileService {
       return `${this.Base_url}/${file_name}`;
     } catch (error) {
       console.log(error);
-      
+
       return ErrorHender(error);
-    
     }
   }
 
   async deleteFile(files: string): Promise<void> {
     try {
-      const prefix = this.Base_url + "/"!;
+      const prefix = this.Base_url + '/'!;
       const file = files.replace(prefix, '');
       const file_path = resolve(
         __dirname,
@@ -62,9 +61,8 @@ export class FileService {
   }
 
   async existFile(file_name: any) {
-    const file = file_name.replace(this.Base_url + "/", '');
+    const file = file_name.replace(this.Base_url + '/', '');
 
-    
     const file_path = resolve(
       __dirname,
       '..',

@@ -7,10 +7,9 @@ import { ApiOperation } from '@nestjs/swagger';
 @Controller('me')
 export class MeController {
   constructor(private readonly meService: MeService) {}
-  
 
   @UseGuards(AuthGuard)
-  @ApiOperation({ summary: "Get current authenticated user profile" })
+  @ApiOperation({ summary: 'Get current authenticated user profile' })
   @Get()
   findAll(@Req() req: Request) {
     return this.meService.findAll(req);

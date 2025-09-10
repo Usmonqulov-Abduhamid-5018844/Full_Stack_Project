@@ -21,20 +21,21 @@ export class MeService {
           where: { id: user.id },
           include: {
             Wellet: {
-              select:{
-                balance:true,
-                id: true
-              }
+              select: {
+                balance: true,
+                id: true,
+              },
             },
-           Doctor_file: true,
-           Doctor_card: true
-          }
+            Doctor_file: true,
+            Doctor_card: true,
+          },
         });
       } else {
         data = await this.prisma.patients.findUnique({
-          where: { id: user.id },include: {
-              Patients_card: true
-          }
+          where: { id: user.id },
+          include: {
+            Patients_card: true,
+          },
         });
       }
 

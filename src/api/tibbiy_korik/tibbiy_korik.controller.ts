@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { TibbiyKorikService } from './tibbiy_korik.service';
 import { CreateTibbiyKorikDto } from './dto/create-tibbiy_korik.dto';
 import { UpdateTibbiyKorikDto } from './dto/update-tibbiy_korik.dto';
@@ -15,7 +25,10 @@ export class TibbiyKorikController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.DOCTOR)
   @Post()
-  create(@Body() createTibbiyKorikDto: CreateTibbiyKorikDto, @Req() req:Request) {
+  create(
+    @Body() createTibbiyKorikDto: CreateTibbiyKorikDto,
+    @Req() req: Request,
+  ) {
     return this.tibbiyKorikService.create(createTibbiyKorikDto, req);
   }
 
@@ -30,7 +43,10 @@ export class TibbiyKorikController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTibbiyKorikDto: UpdateTibbiyKorikDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTibbiyKorikDto: UpdateTibbiyKorikDto,
+  ) {
     return this.tibbiyKorikService.update(+id, updateTibbiyKorikDto);
   }
 

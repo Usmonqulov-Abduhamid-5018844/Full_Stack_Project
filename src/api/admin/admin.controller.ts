@@ -45,12 +45,12 @@ export class AdminController implements OnModuleInit {
     };
     try {
       const admin = await this.prisma.admins.findFirst({
-        where: {phone: data.phone },
+        where: { phone: data.phone },
       });
       if (!admin) {
         const heshed = bcrypt.hashSync(data.password, 10);
         await this.prisma.admins.create({
-          data: { ...data, password: heshed},
+          data: { ...data, password: heshed },
         });
       }
     } catch (error) {
@@ -60,8 +60,7 @@ export class AdminController implements OnModuleInit {
     }
   }
 
-
-  @ApiOperation({summary: "Supper admin uchun"})
+  @ApiOperation({ summary: 'Supper admin uchun' })
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.SUPPER_ADMIN)
   @Post('creted')
@@ -73,7 +72,6 @@ export class AdminController implements OnModuleInit {
   login(@Body() login: LoginAdminDto) {
     return this.adminService.login(login);
   }
-
 
   @ApiOperation({ summary: 'Supper Admin uchun' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
@@ -95,44 +93,45 @@ export class AdminController implements OnModuleInit {
     return this.adminService.findOne(+id);
   }
 
-  
   @ApiOperation({
     summary: 'Update admin',
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    schema:{
-      type: "object",
-      properties:{
-      full_name: {
-        type: "string",
-        example: "Usmonqulov Abduhamid"
+    schema: {
+      type: 'object',
+      properties: {
+        full_name: {
+          type: 'string',
+          example: 'Usmonqulov Abduhamid',
+        },
+        phone: {
+          type: 'string',
+          example: '+998930451852',
+        },
+        login: {
+          type: 'string',
+          example: ' Abduhamid',
+        },
+        password: {
+          type: 'string',
+          example: '12345678',
+        },
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
       },
-      phone: {
-        type:"string",
-        example: "+998930451852",
-      },
-      login: {
-        type: "string",
-        example:" Abduhamid"
-      },
-      password: {
-        type: "string",
-        example: "12345678"
-      },
-      image: {
-        type: "string",
-        format: "binary"
-      }
-    }
-    }
+    },
   })
   @UseGuards(AuthGuard, SelfGuard)
   @Patch(':id')
-  @UseInterceptors(FileInterceptor("image"))
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto ,
-  @UploadedFile() file: Express.Multer.File,
-) {
+  @UseInterceptors(FileInterceptor('image'))
+  update(
+    @Param('id') id: string,
+    @Body() updateAdminDto: UpdateAdminDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     return this.adminService.update(+id, updateAdminDto, file);
   }
 

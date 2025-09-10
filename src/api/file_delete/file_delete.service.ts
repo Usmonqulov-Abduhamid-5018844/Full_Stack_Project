@@ -4,18 +4,17 @@ import { FileService } from '../file/file.service';
 
 @Injectable()
 export class FileDeleteService {
-  constructor(private readonly fileService: FileService){}
+  constructor(private readonly fileService: FileService) {}
   async remove(URL: string) {
     try {
-      if(await this.fileService.existFile(URL)){
-          await this.fileService.deleteFile(URL)
+      if (await this.fileService.existFile(URL)) {
+        await this.fileService.deleteFile(URL);
+      } else {
+        throw new NotFoundException('File URL Not Fount');
       }
-      else{
-        throw new NotFoundException("File URL Not Fount")
-      }
-      return {statusCode: 200, message: "Delete file"}
+      return { statusCode: 200, message: 'Delete file' };
     } catch (error) {
-      return ErrorHender(error)
+      return ErrorHender(error);
     }
   }
 }

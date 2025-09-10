@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { DoctorServicesService } from './doctor_services.service';
 import { CreateDoctorServiceDto } from './dto/create-doctor_service.dto';
 import { UpdateDoctorServiceDto } from './dto/update-doctor_service.dto';
@@ -16,7 +26,10 @@ export class DoctorServicesController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.DOCTOR)
   @Post()
-  create(@Body() createDoctorServiceDto: CreateDoctorServiceDto, @Req() req: Request) {
+  create(
+    @Body() createDoctorServiceDto: CreateDoctorServiceDto,
+    @Req() req: Request,
+  ) {
     return this.doctorServicesService.create(createDoctorServiceDto, req);
   }
 
@@ -31,7 +44,10 @@ export class DoctorServicesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDoctorServiceDto: UpdateDoctorServiceDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateDoctorServiceDto: UpdateDoctorServiceDto,
+  ) {
     return this.doctorServicesService.update(+id, updateDoctorServiceDto);
   }
 

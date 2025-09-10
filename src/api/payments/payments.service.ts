@@ -11,11 +11,13 @@ export class PaymentsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(paymentCallbackDto: PaymentCallbackDto) {
-    try {   
-      const data =  await this.prisma.payments.create({data: paymentCallbackDto})
-      return successRes(data, 201)
+    try {
+      const data = await this.prisma.payments.create({
+        data: paymentCallbackDto,
+      });
+      return successRes(data, 201);
     } catch (error) {
-      return ErrorHender(error)
+      return ErrorHender(error);
     }
   }
 

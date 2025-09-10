@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { WelletService } from './wellet.service';
 import { AuthGuard } from 'src/common/Guard/auth.guard';
 import { RoleGuard } from 'src/common/Guard/role.guard';
@@ -13,7 +23,7 @@ export class WelletController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.DOCTOR, ERols.ADMIN, ERols.SUPPER_ADMIN)
   @Get(':id')
-  findOne(@Param('id') id: string, @Req() req:Request) {
+  findOne(@Param('id') id: string, @Req() req: Request) {
     return this.welletService.findOne(+id, req);
   }
 }

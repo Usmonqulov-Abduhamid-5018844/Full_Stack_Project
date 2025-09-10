@@ -11,13 +11,13 @@ export class UpdatePariensAppointmentDto {
   @IsOptional()
   appointment_date?: string;
 
-@ApiPropertyOptional({
-  example: EAppointments.CONFIRMEND,
-  enum: EAppointments,
-  description: 'Yangi appointment statusi',
-  type: String, 
-})
-@IsEnum(EAppointments)
-@IsOptional()
-status?: EAppointments.CONFIRMEND;
+  @ApiPropertyOptional({
+    example: EAppointments.CONFIRMEND,
+    enum: EAppointments,
+    description: 'Yangi appointment statusi',
+    type: String,
+  })
+  @IsEnum(EAppointments)
+  @IsOptional()
+  status?: EAppointments.CONFIRMEND;
 }

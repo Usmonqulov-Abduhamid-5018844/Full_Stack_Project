@@ -6,58 +6,67 @@ import { ErrorHender } from 'src/infrostructure/utils/catchError';
 
 @Injectable()
 export class DoctorSpecializationService {
- constructor(private readonly prisma: PrismaService) {}
-    async create(createDoctorSpecializationDto: CreateDoctorSpecializationDto, req: Record<string, any>) {
-      const doctor_id = req["user"].id
-      try {
-        const spetsalis = await this.prisma.specialization.findUnique({where: {id: createDoctorSpecializationDto.specialization_id}})
+  constructor(private readonly prisma: PrismaService) {}
+  async create(
+    createDoctorSpecializationDto: CreateDoctorSpecializationDto,
+    req: Record<string, any>,
+  ) {
+    const doctor_id = req['user'].id;
+    try {
+      const spetsalis = await this.prisma.specialization.findUnique({
+        where: { id: createDoctorSpecializationDto.specialization_id },
+      });
 
-        if(!spetsalis){
-          throw new NotFoundException("specialization_id not fount")
-        }
-        const data = await this.prisma.doctor_specialization.create({
-          data: { ...createDoctorSpecializationDto, doctor_id},
-        });
-        return successRes(data, 201);
-      } catch (error) {
-        return ErrorHender(error);
+      if (!spetsalis) {
+        throw new NotFoundException('specialization_id not fount');
       }
+      const data = await this.prisma.doctor_specialization.create({
+        data: { ...createDoctorSpecializationDto, doctor_id },
+      });
+      return successRes(data, 201);
+    } catch (error) {
+      return ErrorHender(error);
     }
-  
-    async findAll() {
-      try {
-        const data = await this.prisma.doctor_specialization.findMany();
-        if (!data.length) {
-          throw new NotFoundException();
-        }
-        return successRes(data);
-      } catch (error) {
-        return ErrorHender(error);
-      }
-    }
-  
-    async findOne(id: number) {
-      try {
-        const data = await this.prisma.doctor_specialization.findUnique({ where: { id } });
-        if (!data) {
-          throw new NotFoundException();
-        }
-        return successRes(data);
-      } catch (error) {
-        return ErrorHender(error);
-      }
-    }
+  }
 
-    async remove(id: number) {
-      try {
-        const data = await this.prisma.doctor_specialization.findUnique({ where: { id } });
-        if (!data) {
-          throw new NotFoundException();
-        }
-        await this.prisma.doctor_specialization.delete({ where: { id } });
-        return { message: 'Deleted', statusCode: 200 };
-      } catch (error) {
-        return ErrorHender(error);
+  async findAll() {
+    try {
+      const data = await this.prisma.doctor_specialization.findMany();
+      if (!data.length) {
+        throw new NotFoundException();
       }
+      return successRes(data);
+    } catch (error) {
+      return ErrorHender(error);
     }
+  }
+
+  async findOne(id: number) {
+    try {
+      const data = await this.prisma.doctor_specialization.findUnique({
+        where: { id },
+      });
+      if (!data) {
+        throw new NotFoundException();
+      }
+      return successRes(data);
+    } catch (error) {
+      return ErrorHender(error);
+    }
+  }
+
+  async remove(id: number) {
+    try {
+      const data = await this.prisma.doctor_specialization.findUnique({
+        where: { id },
+      });
+      if (!data) {
+        throw new NotFoundException();
+      }
+      await this.prisma.doctor_specialization.delete({ where: { id } });
+      return { message: 'Deleted', statusCode: 200 };
+    } catch (error) {
+      return ErrorHender(error);
+    }
+  }
 }

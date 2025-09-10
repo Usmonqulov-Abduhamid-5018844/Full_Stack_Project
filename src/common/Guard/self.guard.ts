@@ -15,17 +15,12 @@ export class SelfGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest();
-    try {
-      if (
-        req['user'].role !== ERols.SUPPER_ADMIN &&
-        req.params.id !== String(req['user'].id)
-      ) {
-        throw new ForbiddenException('Siz bu resursga kira olmaysiz');
-      }
-
-      return true;
-    } catch (error) {
-      throw new UnauthorizedException(error);
+    if (
+      req['user'].role !== ERols.SUPPER_ADMIN &&
+      req.params.id !== String(req['user'].id)
+    ) {
+      throw new ForbiddenException('Siz bu resursga kira olmaysiz');
     }
+    return true;
   }
 }

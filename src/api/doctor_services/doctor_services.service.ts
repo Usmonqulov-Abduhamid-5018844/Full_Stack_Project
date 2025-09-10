@@ -10,12 +10,14 @@ import { ErrorHender } from 'src/infrostructure/utils/catchError';
 export class DoctorServicesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createDoctorServiceDto: CreateDoctorServiceDto, req:Request) {
-    const doctor_id = req["user"].id
+  async create(createDoctorServiceDto: CreateDoctorServiceDto, req: Request) {
+    const doctor_id = req['user'].id;
     try {
-      const service_type = await this.prisma.doctor_services.findUnique({where: {id: createDoctorServiceDto.service_type_id}})
-      if(!service_type){
-        throw  new NotFoundException("Service_type_id not fount")
+      const service_type = await this.prisma.doctor_services.findUnique({
+        where: { id: createDoctorServiceDto.service_type_id },
+      });
+      if (!service_type) {
+        throw new NotFoundException('Service_type_id not fount');
       }
       const data = await this.prisma.doctor_services.create({
         data: { ...createDoctorServiceDto, doctor_id },

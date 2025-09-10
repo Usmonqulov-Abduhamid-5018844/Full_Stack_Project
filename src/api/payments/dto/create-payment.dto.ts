@@ -8,44 +8,43 @@ export enum PaymentStatus {
 }
 
 export class PaymentCallbackDto {
-  @ApiProperty({ example: 'Payme'})
+  @ApiProperty({ example: 'Payme' })
   @IsString()
   provider: string;
 
-  @ApiProperty({ example: 'txn_123456789'})
+  @ApiProperty({ example: 'txn_123456789' })
   @IsString()
   transaction_id: string;
 
-  @ApiProperty({ example: 50000})
+  @ApiProperty({ example: 50000 })
   @IsNumber()
   amount: number;
 
-  @ApiProperty({ example: 'success', enum: PaymentStatus,})
+  @ApiProperty({ example: 'success', enum: PaymentStatus })
   @IsEnum(PaymentStatus)
   status: PaymentStatus;
 
-  @ApiProperty({ example: 1234})
+  @ApiProperty({ example: 1234 })
   @IsOptional()
   @IsInt()
   card_last4?: number;
 
-  @ApiProperty({ example: 'Humo'})
+  @ApiProperty({ example: 'Humo' })
   @IsOptional()
   @IsString()
   card_brand?: string;
 
-  @ApiProperty({ example: 'tok_1PXxx12345'})
+  @ApiProperty({ example: 'tok_1PXxx12345' })
   @IsOptional()
   @IsString()
   card_token?: string;
 
-
-  @ApiProperty({ example: 1})
+  @ApiProperty({ example: 1 })
   @IsOptional()
   @IsInt()
   doctor_id?: number;
 
-  @ApiProperty({ example: 7})
+  @ApiProperty({ example: 7 })
   @IsOptional()
   @IsInt()
   patients_id?: number;

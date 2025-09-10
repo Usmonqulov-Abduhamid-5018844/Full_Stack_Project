@@ -5,12 +5,11 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from 'src/infrostructure/exceoption/AllErrorFilter';
 import { NotFoundFilter } from 'src/infrostructure/exceoption/NotFountFilter';
 
-const Port = Number(process.env.PORT) || 4000
+const Port = Number(process.env.PORT) || 4000;
 
 @Injectable()
 export default class AppService {
-
-   public static async main(): Promise<void> {
+  public static async main(): Promise<void> {
     let app = await NestFactory.create(AppModule);
     app.useGlobalFilters(new AllExceptionsFilter(), new NotFoundFilter());
     app.enableCors({
@@ -34,9 +33,8 @@ export default class AppService {
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, documentFactory);
 
-    await app.listen(Port,'0.0.0.0', () => {
+    await app.listen(Port, '0.0.0.0', () => {
       console.log(`server running on port ${Port}`);
     });
   }
 }
-

@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { PatientsCardService } from './patients_card.service';
 import { CreatePatientsCardDto } from './dto/create-patients_card.dto';
 import { AuthGuard } from 'src/common/Guard/auth.guard';
@@ -14,7 +24,10 @@ export class PatientsCardController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.PATIENTS)
   @Post()
-  create(@Body() createPatientsCardDto: CreatePatientsCardDto, @Req() req: Request) {
+  create(
+    @Body() createPatientsCardDto: CreatePatientsCardDto,
+    @Req() req: Request,
+  ) {
     return this.patientsCardService.create(createPatientsCardDto, req);
   }
 

@@ -1,4 +1,4 @@
-import { Type } from "class-transformer";
+import { Type } from 'class-transformer';
 import {
   IsString,
   IsNotEmpty,
@@ -8,9 +8,8 @@ import {
   Max,
   IsPhoneNumber,
   IsEnum,
-} from "class-validator";
-import { EDoctorGender } from "src/common/enum";
-
+} from 'class-validator';
+import { EDoctorGender } from 'src/common/enum';
 
 export class UpdatePatientDto {
   @IsOptional()
@@ -24,11 +23,13 @@ export class UpdatePatientDto {
   last_name?: string;
 
   @IsOptional()
-  @IsPhoneNumber("UZ")
+  @IsPhoneNumber('UZ')
   phone?: string;
 
   @IsOptional()
-  @IsEnum(EDoctorGender, { message: `gender faqat 'male' yoki 'female' bo'lishi kerak`})
+  @IsEnum(EDoctorGender, {
+    message: `gender faqat 'male' yoki 'female' bo'lishi kerak`,
+  })
   gender?: EDoctorGender;
 
   @IsOptional()
@@ -46,4 +47,3 @@ export class UpdatePatientDto {
   @IsString()
   image?: string;
 }
-

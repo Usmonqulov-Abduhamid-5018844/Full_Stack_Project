@@ -1,11 +1,11 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get } from '@nestjs/common';
 
 @Controller()
 export class AppController {
-    constructor(){}
+  constructor() {}
 
   @Get()
-    getRoot() {
+  getRoot() {
     return { message: 'Backend is running 🚀' };
-  } 
+  }
 }

@@ -32,9 +32,9 @@ import { RefreshTokenModule } from './refresh_token/refresh_token.module';
     ServeStaticModule.forRoot({
       rootPath: resolve(__dirname, '..', '..', '..', 'uplout'),
       serveRoot: '/uplout',
-      serveStaticOptions:{
+      serveStaticOptions: {
         fallthrough: false,
-      }
+      },
     }),
     JwtModule.register({ global: true }),
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),

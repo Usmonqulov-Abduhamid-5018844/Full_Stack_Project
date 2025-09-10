@@ -17,12 +17,16 @@ export class AppointmentsService {
   constructor(private readonly prisma: PrismaService) {}
   async create(createAppointmentDto: CreateAppointmentDto, req: Request) {
     const patient_id = req['user'].id;
-    const {doctor_id, service_id} = createAppointmentDto
+    const { doctor_id, service_id } = createAppointmentDto;
     try {
-      const doctor = await this.prisma.doctors.findUnique({where: {id: doctor_id}})
-      const service = await this.prisma.doctor_services.findUnique({where: {id: service_id}})
-      if(!doctor || !service){
-        throw new NotFoundException("doctor_id or service_id Not fount")
+      const doctor = await this.prisma.doctors.findUnique({
+        where: { id: doctor_id },
+      });
+      const service = await this.prisma.doctor_services.findUnique({
+        where: { id: service_id },
+      });
+      if (!doctor || !service) {
+        throw new NotFoundException('doctor_id or service_id Not fount');
       }
       const data = await this.prisma.appointments.create({
         data: { ...createAppointmentDto, patient_id },
@@ -63,12 +67,16 @@ export class AppointmentsService {
     req: Request,
   ) {
     const user = req['user'];
-     const {doctor_id, service_id} = updateAppointmentDto
-     try {
-      const doctor = await this.prisma.doctors.findUnique({where: {id: doctor_id}})
-       const service = await this.prisma.doctor_services.findUnique({where: {id: service_id}})
-        if(!doctor || !service){
-        throw new NotFoundException("doctor_id or service_id Not fount")
+    const { doctor_id, service_id } = updateAppointmentDto;
+    try {
+      const doctor = await this.prisma.doctors.findUnique({
+        where: { id: doctor_id },
+      });
+      const service = await this.prisma.doctor_services.findUnique({
+        where: { id: service_id },
+      });
+      if (!doctor || !service) {
+        throw new NotFoundException('doctor_id or service_id Not fount');
       }
       const data = await this.prisma.appointments.findUnique({ where: { id } });
       if (!data) {

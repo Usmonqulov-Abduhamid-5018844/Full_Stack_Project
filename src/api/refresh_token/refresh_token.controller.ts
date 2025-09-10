@@ -23,9 +23,8 @@ export class RefreshTokenController {
   @ApiResponse({
     status: 200,
     description: 'Yangi accsesToken qaytaradi',
-    type: AccessTokenDto
-  },
-)
+    type: AccessTokenDto,
+  })
   @UseGuards(RefreshGuard)
   @Get()
   findAll(@Req() req: Request) {

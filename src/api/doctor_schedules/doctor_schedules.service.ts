@@ -11,13 +11,12 @@ export class DoctorSchedulesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createDoctorScheduleDto: CreateDoctorScheduleDto, req: Request) {
-    const doctor_id = Number(req['user'].id)
+    const doctor_id = Number(req['user'].id);
     try {
-      let newData: any = {...createDoctorScheduleDto}
-      if(createDoctorScheduleDto.day_of_week){
-       newData.day_of_week = createDoctorScheduleDto.day_of_week.toString();
-
-      } 
+      let newData: any = { ...createDoctorScheduleDto };
+      if (createDoctorScheduleDto.day_of_week) {
+        newData.day_of_week = createDoctorScheduleDto.day_of_week.toString();
+      }
       const data = await this.prisma.doctor_schedules.create({
         data: { ...newData, doctor_id },
       });
@@ -59,16 +58,15 @@ export class DoctorSchedulesService {
       if (!data) {
         throw new NotFoundException();
       }
-      let NewData:any = {...updateDoctorScheduleDto}
-      if(updateDoctorScheduleDto.day_of_week){
-        NewData.day_of_week = updateDoctorScheduleDto.day_of_week.toString()
+      let NewData: any = { ...updateDoctorScheduleDto };
+      if (updateDoctorScheduleDto.day_of_week) {
+        NewData.day_of_week = updateDoctorScheduleDto.day_of_week.toString();
       }
       const newData = await this.prisma.doctor_schedules.update({
         where: { id },
         data: { ...NewData },
       });
-      return successRes(newData)
-
+      return successRes(newData);
     } catch (error) {
       return ErrorHender(error);
     }

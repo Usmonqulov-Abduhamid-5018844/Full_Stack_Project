@@ -1,4 +1,8 @@
-import { Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTibbiyKorikDto } from './dto/create-tibbiy_korik.dto';
 import { UpdateTibbiyKorikDto } from './dto/update-tibbiy_korik.dto';
 import { ErrorHender } from 'src/infrostructure/utils/catchError';
@@ -9,13 +13,15 @@ import { Request } from 'express';
 @Injectable()
 export class TibbiyKorikService {
   constructor(private readonly prisma: PrismaService) {}
-  async create(createTibbiyKorikDto: CreateTibbiyKorikDto, req:Request) {
-    const doctor_id = req["user"].id
+  async create(createTibbiyKorikDto: CreateTibbiyKorikDto, req: Request) {
+    const doctor_id = req['user'].id;
     try {
-      const patients = await this.prisma.patients.findUnique({where: {id: createTibbiyKorikDto.patients_id}})
+      const patients = await this.prisma.patients.findUnique({
+        where: { id: createTibbiyKorikDto.patients_id },
+      });
 
-      if(!patients){
-        throw new NotFoundException("patients_id not fount")
+      if (!patients) {
+        throw new NotFoundException('patients_id not fount');
       }
 
       const data = await this.prisma.tibbiy_korik.create({

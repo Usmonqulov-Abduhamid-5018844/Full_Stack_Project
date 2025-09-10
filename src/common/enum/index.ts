@@ -10,10 +10,10 @@ export enum EAdminRoles {
 }
 
 export enum ERols {
-  ADMIN = "admin",
-  SUPPER_ADMIN = "supper_admin",
-  DOCTOR = "doctor",
-  PATIENTS = "patients"
+  ADMIN = 'admin',
+  SUPPER_ADMIN = 'supper_admin',
+  DOCTOR = 'doctor',
+  PATIENTS = 'patients',
 }
 
 export enum EAppointments {
@@ -39,23 +39,23 @@ export enum EDoctor {
 }
 
 export enum EDoctorGender {
-  "mail",
-  "femail"
+  'mail',
+  'femail',
 }
 
 export enum ERegion {
-  ANDIJON = "Andijon",
-  BUXORO = "Buxoro",
-  FARGONA = "Farg‘ona",
-  JIZZAX = "Jizzax",
-  XORAZM = "Xorazm",
-  NAMANGAN = "Namangan",
-  NAVOIY = "Navoiy",
-  QASHQADARYO = "Qashqadaryo",
-  QORAQALPOGISTON = "Qoraqalpog‘iston Respublikasi",
-  SAMARQAND = "Samarqand",
-  SIRDARYO = "Sirdaryo",
-  SURXONDARYO = "Surxondaryo",
-  TOSHKENT = "Toshkent viloyati",
-  TOSHKENT_SHAHRI = "Toshkent shahri",
+  ANDIJON = 'Andijon',
+  BUXORO = 'Buxoro',
+  FARGONA = 'Farg‘ona',
+  JIZZAX = 'Jizzax',
+  XORAZM = 'Xorazm',
+  NAMANGAN = 'Namangan',
+  NAVOIY = 'Navoiy',
+  QASHQADARYO = 'Qashqadaryo',
+  QORAQALPOGISTON = 'Qoraqalpog‘iston Respublikasi',
+  SAMARQAND = 'Samarqand',
+  SIRDARYO = 'Sirdaryo',
+  SURXONDARYO = 'Surxondaryo',
+  TOSHKENT = 'Toshkent viloyati',
+  TOSHKENT_SHAHRI = 'Toshkent shahri',
 }

@@ -8,7 +8,6 @@ export class OtpService {
   private eskizApiToken = 'YOUR_ESKIZ_TOKEN_HERE';
 
   async sendOtp(phoneNumber: string, otp: string) {
-
     const payload = {
       mobile_phone: phoneNumber,
       message: `Sizning OTP kodingiz: ${otp}`,

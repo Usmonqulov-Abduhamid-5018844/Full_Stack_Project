@@ -1,16 +1,16 @@
-import { Type } from "class-transformer";
-import { 
-  IsString, 
-  IsNotEmpty, 
-  IsOptional, 
-  IsInt, 
-  Min, 
-  Max, 
-  IsPhoneNumber, 
-  IsDateString, 
-  IsEnum 
-} from "class-validator";
-import { EDoctorGender, ERegion } from "src/common/enum";
+import { Type } from 'class-transformer';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsInt,
+  Min,
+  Max,
+  IsPhoneNumber,
+  IsDateString,
+  IsEnum,
+} from 'class-validator';
+import { EDoctorGender, ERegion } from 'src/common/enum';
 
 export class UpdateDoctorDto {
   @IsOptional()
@@ -35,7 +35,7 @@ export class UpdateDoctorDto {
   experience_years?: number;
 
   @IsOptional()
-  @IsPhoneNumber("UZ")
+  @IsPhoneNumber('UZ')
   phone?: string;
 
   @IsOptional()

@@ -44,12 +44,7 @@ export class PatientsController {
   @ApiQuery({
     name: 'sortBy',
     required: false,
-    enum: [
-      'first_name',
-      'last_name',
-      'phone',
-      'gender',
-    ],
+    enum: ['first_name', 'last_name', 'phone', 'gender'],
   })
   @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })
   @Get()

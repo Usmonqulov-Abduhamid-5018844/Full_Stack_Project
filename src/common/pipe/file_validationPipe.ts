@@ -10,19 +10,17 @@ export class FileValidation implements PipeTransform<any> {
     '.xls',
     '.xlsx',
     '.csv',
-    '.txt'
+    '.txt',
   ];
 
   transform(value: Express.Multer.File | Express.Multer.File[] | any) {
     try {
       if (!value) return value;
 
-
       if (Array.isArray(value)) {
         value.forEach((file) => this.validateFile(file));
         return value;
       }
-
 
       if (typeof value === 'object' && !value.originalname) {
         Object.values(value).forEach((files: any) => {
@@ -32,7 +30,6 @@ export class FileValidation implements PipeTransform<any> {
         });
         return value;
       }
-
 
       return this.validateFile(value);
     } catch (error) {
@@ -47,7 +44,7 @@ export class FileValidation implements PipeTransform<any> {
     const fileExt = extname(file.originalname).toLowerCase();
     if (!this.allowedExts.includes(fileExt)) {
       throw new BadRequestException(
-        "Only PDF, Word, Excel, CSV and TXT formats can be uploaded",
+        'Only PDF, Word, Excel, CSV and TXT formats can be uploaded',
       );
     }
     return file;

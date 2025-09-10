@@ -9,13 +9,6 @@ enum EAdminRoles {
   supper_admin
 }
 
-enum EAppointments {
-  pending
-  confirmed
-  completed
-  cancelled
-}
-
 enum ECommentSender {
   doctor
   patients
@@ -49,7 +42,8 @@ model Doctors {
   last_name             String?
   bio                   String?
   verified              Boolean                 @default(false)
-  reyting               Int?                    @default(0)
+  reyting               Int                     @default(0)
+  reyting_count         Int                     @default(0)
   experience_years      Int?
   phone                 String?                 @unique
   password              String?
@@ -85,14 +79,14 @@ model Doctor_services {
 model Service_type {
   id           Int               @id @default(autoincrement())
   service_name String
-  desc         String
+  desc         String?
   doctot       Doctor_services[]
 }
 
 model Wellet {
   id         Int      @id @default(autoincrement())
   doctor_id  Int
-  balance    Decimal
+  balance    Decimal  @default(0)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   doctot     Doctors  @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -109,7 +103,7 @@ model Doctor_specialization {
 model Specialization {
   id                    Int                     @id @default(autoincrement())
   name                  String
-  desc                  String
+  desc                  String?
   Doctor_specialization Doctor_specialization[]
 }
 
@@ -117,7 +111,7 @@ model Doctor_card {
   id           Int     @id @default(autoincrement())
   doctor_id    Int
   card_name    String
-  card_number  Int
+  card_number  String
   expire_month String
   expire_year  String
   doctor       Doctors @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -166,7 +160,7 @@ model Patients_card {
   id           Int     @id @default(autoincrement())
   patients_id  Int
   card_name    String
-  card_number  Int
+  card_number  String
   expire_month String
   expire_year  String
   patients     Doctors @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -191,15 +185,13 @@ model Tibbiy_korik {
   created_at                 DateTime @default(now())
   updated_at                 DateTime @updatedAt
 
-  Patients   Patients? @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  doctor     Doctors   @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Patients Patients? @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  doctor   Doctors   @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Appointments {
   id               Int           @id @default(autoincrement())
-  price            Decimal
-  status           EAppointments @default(pending)
-  quantity         Int
+  status           String @default("pending")
   appointment_date String
   doctor_id        Int
   patient_id       Int
@@ -225,17 +217,24 @@ model Comment {
   doctor      Doctors        @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-model Payments {
-  id          Int      @id @default(autoincrement())
-  provider    String
-  card_last4  Int
-  card_brand  String
-  card_token  String
-  is_default  Boolean
-  doctor_id   Int
-  patients_id Int
-  created_at  DateTime @default(now())
 
-  patients Patients @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  doctot   Doctors  @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+
+model Payments {
+  id            Int       @id @default(autoincrement())
+  provider      String
+  transaction_id String 
+  amount        Decimal   @db.Decimal(10,2)
+  status        String 
+  card_last4    Int?
+  card_brand    String?
+  card_token    String?
+  is_default    Boolean   @default(false)
+  doctor_id     Int?
+  patients_id   Int? 
+  created_at    DateTime  @default(now())
+
+  patients   Patients?       @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  doctor     Doctors?        @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
+

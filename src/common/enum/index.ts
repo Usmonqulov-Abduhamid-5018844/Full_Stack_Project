@@ -17,10 +17,10 @@ export enum ERols {
 }
 
 export enum EAppointments {
-  'pending',
-  'confirmed',
-  'completed',
-  'cancelled',
+  PENDING = 'pending',
+  CONFIRMEND = 'confirmend',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
 }
 
 export enum ECommentSender {

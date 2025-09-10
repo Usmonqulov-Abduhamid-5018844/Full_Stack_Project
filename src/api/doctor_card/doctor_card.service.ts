@@ -1,26 +1,64 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDoctorCardDto } from './dto/create-doctor_card.dto';
-import { UpdateDoctorCardDto } from './dto/update-doctor_card.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { successRes } from 'src/infrostructure/utils/succesResponse';
+import { ErrorHender } from 'src/infrostructure/utils/catchError';
+import { Request } from 'express';
 
 @Injectable()
 export class DoctorCardService {
-  create(createDoctorCardDto: CreateDoctorCardDto) {
-    return 'This action adds a new doctorCard';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createDoctorCardDto: CreateDoctorCardDto, req: Request) {
+    const doctor_id = req['user'].id;
+    try {
+      const data = await this.prisma.doctor_card.create({
+        data: { ...createDoctorCardDto, doctor_id },
+      });
+      return successRes(data, 201);
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 
-  findAll() {
-    return `This action returns all doctorCard`;
+  async findAll() {
+    try {
+      const data = await this.prisma.doctor_card.findMany();
+      if (!data.length) {
+        throw new NotFoundException();
+      }
+      return successRes(data);
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} doctorCard`;
+  async findOne(id: number) {
+    try {
+      const data = await this.prisma.doctor_card.findUnique({
+        where: { id },
+      });
+      if (!data) {
+        throw new NotFoundException();
+      }
+      return successRes(data);
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 
-  update(id: number, updateDoctorCardDto: UpdateDoctorCardDto) {
-    return `This action updates a #${id} doctorCard`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} doctorCard`;
+  async remove(id: number) {
+    try {
+      const data = await this.prisma.doctor_card.findUnique({
+        where: { id },
+      });
+      if (!data) {
+        throw new NotFoundException();
+      }
+      await this.prisma.doctor_card.delete({ where: { id } });
+      return { message: 'Deleted', statusCode: 200 };
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 }

@@ -11,7 +11,7 @@ export class CreateSpecializationDto {
     example: `Asab tizimi kasalliklari bilan shug'ullanadigan mutaxassis`,
     description: "Mutaxassislik haqida qisqa izoh",
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  desc: string;
+  desc?: string;
 }

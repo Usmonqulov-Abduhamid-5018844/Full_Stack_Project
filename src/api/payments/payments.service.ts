@@ -1,26 +1,41 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PaymentCallbackDto } from './dto/create-payment.dto';
+import { Request } from 'express';
+import { ErrorHender } from 'src/infrostructure/utils/catchError';
+import { ERols } from 'src/common/enum';
+import { PrismaService } from '../prisma/prisma.service';
+import { successRes } from 'src/infrostructure/utils/succesResponse';
 
 @Injectable()
 export class PaymentsService {
-  create(createPaymentDto: CreatePaymentDto) {
-    return 'This action adds a new payment';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(paymentCallbackDto: PaymentCallbackDto) {
+    try {
+      await this.prisma.payments.create({data: paymentCallbackDto})
+    } catch (error) {
+      return ErrorHender(error)
+    }
   }
 
-  findAll() {
-    return `This action returns all payments`;
-  }
+  async findAll(req: Request) {
+    const user = req['user'];
+    try {
+      let where: any = {};
 
-  findOne(id: number) {
-    return `This action returns a #${id} payment`;
-  }
+      if (user.role === ERols.DOCTOR) {
+        where = { doctor_id: user.id };
+      } else if (user.role === ERols.PATIENTS) {
+        where = { patients_id: user.id };
+      }
 
-  update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    return `This action updates a #${id} payment`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} payment`;
+      const data = await this.prisma.payments.findMany({ where });
+      if (!data.length) {
+        throw new NotFoundException('Payments not found');
+      }
+      return successRes(data);
+    } catch (error) {
+      return ErrorHender(error);
+    }
   }
 }

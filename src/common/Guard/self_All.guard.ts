@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { ErrorHender } from 'src/infrostructure/utils/catchError';
-import { EAdminRoles } from '../enum';
+import { ERols } from '../enum';
 
 @Injectable()
 export class SelfGuardAll implements CanActivate {
@@ -17,8 +17,8 @@ export class SelfGuardAll implements CanActivate {
     const req = context.switchToHttp().getRequest();
     try {
       if (
-        req['user'].role === EAdminRoles.admin ||
-        req['user'].role === EAdminRoles.supper_admin
+        req['user'].role === ERols.ADMIN ||
+        req['user'].role === ERols.SUPPER_ADMIN
       ) {
         return true;
       }

@@ -1,34 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { WelletService } from './wellet.service';
-import { CreateWelletDto } from './dto/create-wellet.dto';
-import { UpdateWelletDto } from './dto/update-wellet.dto';
+import { AuthGuard } from 'src/common/Guard/auth.guard';
+import { RoleGuard } from 'src/common/Guard/role.guard';
+import { Roles } from 'src/common/Decorator/Role.decorator';
+import { ERols } from 'src/common/enum';
+import { Request } from 'express';
 
 @Controller('wellet')
 export class WelletController {
   constructor(private readonly welletService: WelletService) {}
 
-  @Post()
-  create(@Body() createWelletDto: CreateWelletDto) {
-    return this.welletService.create(createWelletDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.welletService.findAll();
-  }
-
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.DOCTOR, ERols.ADMIN, ERols.SUPPER_ADMIN)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.welletService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWelletDto: UpdateWelletDto) {
-    return this.welletService.update(+id, updateWelletDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.welletService.remove(+id);
+  findOne(@Param('id') id: string, @Req() req:Request) {
+    return this.welletService.findOne(+id, req);
   }
 }

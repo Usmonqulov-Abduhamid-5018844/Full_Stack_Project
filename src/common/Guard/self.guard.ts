@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { ErrorHender } from 'src/infrostructure/utils/catchError';
-import { EAdminRoles } from '../enum';
 
 @Injectable()
 export class SelfGuard implements CanActivate {

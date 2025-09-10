@@ -20,7 +20,6 @@ import * as bcrypt from 'bcrypt';
 import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { LoginAdminDto } from './dto/login-admin.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ImageValidation } from 'src/common/pipe/image_validation';
 
 @Controller('admin')
 export class AdminController implements OnModuleInit {
@@ -40,12 +39,12 @@ export class AdminController implements OnModuleInit {
     };
     try {
       const admin = await this.prisma.admins.findFirst({
-        where: { full_name: data.full_name, phone: data.phone },
+        where: {phone: data.phone },
       });
       if (!admin) {
         const heshed = bcrypt.hashSync(data.password, 10);
         await this.prisma.admins.create({
-          data: { ...data, password: heshed },
+          data: { ...data, password: heshed},
         });
       }
     } catch (error) {

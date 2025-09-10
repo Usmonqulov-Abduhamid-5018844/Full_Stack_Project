@@ -67,7 +67,7 @@ export class DoctorService {
     },
     doctor: DoctorIdDto,
   ) {
-    const {doctor_id} = doctor
+    const { doctor_id } = doctor;
     const savetFiles: string[] = [];
     try {
       const data = await this.prisma.doctors.findFirst({
@@ -78,7 +78,7 @@ export class DoctorService {
       }
 
       const doctor_files = await this.prisma.doctor_file.findFirst({
-        where: { doctor_id},
+        where: { doctor_id },
       });
       const updateFiles: any = {};
 
@@ -228,7 +228,7 @@ export class DoctorService {
         },
         skip: (page - 1) * limit,
         take: Number(limit),
-        include: { Doctor_file: true },
+        include: { Doctor_file: true, Wellet: true },
       });
       if (!data.length) {
         throw new NotFoundException();
@@ -249,7 +249,12 @@ export class DoctorService {
         where: { id: data.id },
         data: { verified: true },
       });
-      return { message: 'Akaunt akktivlashtirildi', statusCode: 200 };
+      await this.prisma.wellet.create({ data: { doctor_id: id } });
+      return {
+        message:
+          'Akaunt akktivlashtirildi va Doctor uchun virtuval hamyon yaratildi.',
+        statusCode: 200,
+      };
     } catch (error) {
       return ErrorHender(error);
     }
@@ -257,7 +262,10 @@ export class DoctorService {
 
   async findOne(id: number) {
     try {
-      const data = await this.prisma.doctors.findUnique({ where: { id } });
+      const data = await this.prisma.doctors.findUnique({
+        where: { id },
+        include: { Doctor_file: true, Wellet: true },
+      });
       if (!data) {
         throw new NotFoundException('Not Fount Doctor id');
       }

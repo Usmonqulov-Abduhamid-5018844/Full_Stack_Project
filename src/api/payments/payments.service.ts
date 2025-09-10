@@ -11,8 +11,9 @@ export class PaymentsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(paymentCallbackDto: PaymentCallbackDto) {
-    try {
-      await this.prisma.payments.create({data: paymentCallbackDto})
+    try {   
+      const data =  await this.prisma.payments.create({data: paymentCallbackDto})
+      return successRes(data, 201)
     } catch (error) {
       return ErrorHender(error)
     }

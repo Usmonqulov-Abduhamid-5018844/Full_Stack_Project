@@ -18,6 +18,7 @@ export class FileService {
       if (!existsSync(file_path)) {
         mkdirSync(file_path, { recursive: true });
       }
+      
       await new Promise<void>((resolve, reject) => {
         writeFile(join(file_path, file_name), file.buffer, (err) => {
           if (err) reject(err);

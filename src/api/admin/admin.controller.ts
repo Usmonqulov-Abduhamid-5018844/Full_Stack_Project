@@ -10,6 +10,7 @@ import {
   Query,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -20,6 +21,11 @@ import * as bcrypt from 'bcrypt';
 import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { LoginAdminDto } from './dto/login-admin.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from 'src/common/Guard/auth.guard';
+import { RoleGuard } from 'src/common/Guard/role.guard';
+import { Roles } from 'src/common/Decorator/Role.decorator';
+import { ERols } from 'src/common/enum';
+import { SelfGuard } from 'src/common/Guard/self.guard';
 
 @Controller('admin')
 export class AdminController implements OnModuleInit {
@@ -54,15 +60,20 @@ export class AdminController implements OnModuleInit {
     }
   }
 
+
   @ApiOperation({summary: "Supper admin uchun"})
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.SUPPER_ADMIN)
   @Post('creted')
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
   }
+
   @Post('login')
   login(@Body() login: LoginAdminDto) {
     return this.adminService.login(login);
   }
+
 
   @ApiOperation({ summary: 'Supper Admin uchun' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
@@ -71,11 +82,14 @@ export class AdminController implements OnModuleInit {
   @ApiQuery({ name: 'phone', required: false })
   @ApiQuery({ name: 'sortBy', required: false, enum: ['full_name', 'phone'] })
   @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.SUPPER_ADMIN)
   @Get()
   findAll(@Query() query: Record<string, any>) {
     return this.adminService.findAll(query);
   }
 
+  @UseGuards(AuthGuard, SelfGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.adminService.findOne(+id);
@@ -113,6 +127,7 @@ export class AdminController implements OnModuleInit {
     }
     }
   })
+  @UseGuards(AuthGuard, SelfGuard)
   @Patch(':id')
   @UseInterceptors(FileInterceptor("image"))
   update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto ,
@@ -121,6 +136,8 @@ export class AdminController implements OnModuleInit {
     return this.adminService.update(+id, updateAdminDto, file);
   }
 
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.SUPPER_ADMIN)
   @ApiOperation({ summary: 'Supper Admin uchun' })
   @Delete(':id')
   remove(@Param('id') id: string) {

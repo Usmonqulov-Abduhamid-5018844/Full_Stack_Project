@@ -12,7 +12,6 @@ import {
 import { PaymentsService } from './payments.service';
 import { PaymentCallbackDto } from './dto/create-payment.dto';
 import { AuthGuard } from 'src/common/Guard/auth.guard';
-import { RoleGuard } from 'src/common/Guard/role.guard';
 import { Request } from 'express';
 import { ApiOperation } from '@nestjs/swagger';
 

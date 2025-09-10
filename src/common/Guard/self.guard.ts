@@ -1,6 +1,12 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { ErrorHender } from 'src/infrostructure/utils/catchError';
+import { ERols } from '../enum';
 
 @Injectable()
 export class SelfGuard implements CanActivate {
@@ -10,17 +16,16 @@ export class SelfGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest();
     try {
-
-      if(req.params.id !== req["user"].id){
-        console.log(req["user"].id);
-        console.log(`params_Id ${req.params.id}`);
-        
-        
-        throw new ForbiddenException("Forbidden user")
+      if (
+        req['user'].role !== ERols.SUPPER_ADMIN &&
+        req.params.id !== String(req['user'].id)
+      ) {
+        throw new ForbiddenException('Siz bu resursga kira olmaysiz');
       }
-      return true
+
+      return true;
     } catch (error) {
-      return ErrorHender(error);
+      throw new UnauthorizedException(error);
     }
   }
 }

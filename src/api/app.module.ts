@@ -23,6 +23,8 @@ import { FileModule } from './file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve } from 'path';
 import { FileDeleteModule } from './file_delete/file_delete.module';
+import { MeModule } from './me/me.module';
+import { RefreshTokenModule } from './refresh_token/refresh_token.module';
 
 @Module({
   controllers: [AppController],
@@ -55,6 +57,8 @@ import { FileDeleteModule } from './file_delete/file_delete.module';
     DoctorCardModule,
     DoctorSpecializationModule,
     FileDeleteModule,
+    MeModule,
+    RefreshTokenModule,
   ],
 })
 export class AppModule {}

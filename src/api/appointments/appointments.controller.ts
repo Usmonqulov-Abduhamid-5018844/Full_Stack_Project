@@ -39,11 +39,13 @@ export class AppointmentsController {
     return this.appointmentsService.create(createAppointmentDto, req);
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.appointmentsService.findAll();
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.appointmentsService.findOne(+id);

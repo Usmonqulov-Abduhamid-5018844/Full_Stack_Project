@@ -1,14 +1,14 @@
 import {
+  ForbiddenException,
   Injectable,
-  NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateDoctorFileDto } from './dto/create-doctor_file.dto';
-import { UpdateDoctorFileDto } from './dto/update-doctor_file.dto';
 import { ErrorHender } from 'src/infrostructure/utils/catchError';
 import { PrismaService } from '../prisma/prisma.service';
 import { FileService } from '../file/file.service';
 import { successRes } from 'src/infrostructure/utils/succesResponse';
+import { Request } from 'express';
+import { ERols } from 'src/common/enum';
 
 @Injectable()
 export class DoctorFileService {
@@ -111,9 +111,12 @@ export class DoctorFileService {
       return ErrorHender(error);
     }
   }
-  async findAll() {
+  async findAll(req: Request) {
+    const user = req["user"]
     try {
-      const data = await this.prisma.doctor_file.findMany();
+      const where = user.role === ERols.DOCTOR ? {doctor_id: user.id} : {}
+
+      const data = await this.prisma.doctor_file.findMany({where});
       if (!data.length) {
         throw new NotFoundException();
       }
@@ -123,11 +126,18 @@ export class DoctorFileService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, req: Request) {
+    const user = req["user"]
     try {
+
       const data = await this.prisma.doctor_file.findUnique({ where: { id } });
       if (!data) {
         throw new NotFoundException();
+      }
+      const isOwner = data.doctor_id === user.id
+      const isAdmin = [ERols.ADMIN, ERols.SUPPER_ADMIN].includes(user.role)
+      if(!isOwner && !isAdmin){
+        throw new ForbiddenException("Bu faylni ko'rish uchun sizda ruxsat yoq.")
       }
       return successRes(data);
     } catch (error) {
@@ -135,11 +145,18 @@ export class DoctorFileService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, req: Request) {
+    const user = req["user"]
     try {
       const data = await this.prisma.doctor_file.findUnique({ where: { id } });
       if (!data) {
         throw new NotFoundException();
+      }
+      const isOwner = data.doctor_id === user.id
+      const isAdmin = [ERols.ADMIN,ERols.SUPPER_ADMIN].includes(user.role)
+
+      if(!isOwner && !isAdmin){
+        throw new ForbiddenException("Bu faylni o'chirish uchun sizda ruxsat yoq.")
       }
 
       const fileFields = [

@@ -277,11 +277,7 @@ export class DoctorService {
 
   async doctorWorking(req: Request) {
     try {
-      const userId = req['user']?.id;
-      console.log(userId);
-      if (!userId) {
-        throw new BadRequestException(`User topilmadi yoki token noto'g'ri`);
-      }
+      const userId = req['user'].id;
 
       const data = await this.prisma.doctors.findUnique({
         where: { id: userId },

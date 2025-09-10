@@ -1,9 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
-import { NotFoundError, Observable } from "rxjs";
-import { PrismaService } from "src/api/prisma/prisma.service";
-import { ErrorHender } from "src/infrostructure/utils/catchError";
+import { Observable } from "rxjs";
+
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -27,7 +26,7 @@ export class AuthGuard implements CanActivate {
             request["user"] = data
             return true
         } catch (error) {
-            return ErrorHender(error)
+            throw new UnauthorizedException(error)
         }
     }
 }

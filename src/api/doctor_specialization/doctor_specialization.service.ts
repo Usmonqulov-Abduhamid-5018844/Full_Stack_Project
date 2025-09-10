@@ -10,6 +10,11 @@ export class DoctorSpecializationService {
     async create(createDoctorSpecializationDto: CreateDoctorSpecializationDto, req: Record<string, any>) {
       const doctor_id = req["user"].id
       try {
+        const spetsalis = await this.prisma.specialization.findUnique({where: {id: createDoctorSpecializationDto.specialization_id}})
+
+        if(!spetsalis){
+          throw new NotFoundException("specialization_id not fount")
+        }
         const data = await this.prisma.doctor_specialization.create({
           data: { ...createDoctorSpecializationDto, doctor_id},
         });

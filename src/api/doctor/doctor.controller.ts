@@ -26,10 +26,10 @@ import { DoctorIdDto } from './dto/doctor_id.dto';
 import { cretedDoctorDto } from './dto/creted-doctor.dto';
 import { EDoctorGender, ERegion, ERols } from 'src/common/enum';
 import { Request } from 'express';
-import { SelfGuard } from 'src/common/Guard/self.guard';
 import { AuthGuard } from 'src/common/Guard/auth.guard';
 import { RoleGuard } from 'src/common/Guard/role.guard';
 import { Roles } from 'src/common/Decorator/Role.decorator';
+import { SelfGuard } from 'src/common/Guard/self.guard';
 
 @Controller('doctor')
 export class DoctorController {
@@ -90,6 +90,8 @@ export class DoctorController {
     return this.doctorService.login(data);
   }
 
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.ADMIN, ERols.SUPPER_ADMIN)
   @ApiOperation({ summary: 'Admin yoki Supper_admin uchun' })
   @Patch('doctor/active/:id')
   updateDoctorActive(@Param('id') id: string) {
@@ -119,11 +121,13 @@ export class DoctorController {
     ],
   })
   @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })
+  @UseGuards(AuthGuard)
   @Get()
   findAll(@Query() query: Record<string, any>) {
     return this.doctorService.findAll(query);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.doctorService.findOne(+id);
@@ -165,6 +169,7 @@ export class DoctorController {
       },
     },
   })
+  @UseGuards(AuthGuard, SelfGuard)
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
   update(
@@ -175,6 +180,8 @@ export class DoctorController {
     return this.doctorService.update(+id, updateDoctorDto, file);
   }
 
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.ADMIN, ERols.SUPPER_ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.doctorService.remove(+id);

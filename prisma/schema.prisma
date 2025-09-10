@@ -59,7 +59,6 @@ model Doctors {
   Doctor_card           Doctor_card[]
   Doctor_file           Doctor_file[]
   doctor_schedules      doctor_schedules[]
-  Patients_card         Patients_card[]
   Tibbiy_korik          Tibbiy_korik[]
   Appointments          Appointments[]
   Comment               Comment[]
@@ -77,10 +76,10 @@ model Doctor_services {
 }
 
 model Service_type {
-  id           Int               @id @default(autoincrement())
-  service_name String
-  desc         String?
-  doctot       Doctor_services[]
+  id              Int               @id @default(autoincrement())
+  service_name    String
+  desc            String?
+  doctor_services Doctor_services[]
 }
 
 model Wellet {
@@ -141,29 +140,30 @@ model doctor_schedules {
 }
 
 model Patients {
-  id           Int            @id @default(autoincrement())
-  first_name   String?
-  last_name    String?
-  phone        String?        @unique
-  gender       String?
-  role         String         @default("patients")
-  password     String?
-  age          Int?
-  image        String?
-  Tibbiy       Tibbiy_korik[]
-  Appointments Appointments[]
-  Comment      Comment[]
-  Payments     Payments[]
+  id            Int             @id @default(autoincrement())
+  first_name    String?
+  last_name     String?
+  phone         String?         @unique
+  gender        String?
+  role          String          @default("patients")
+  password      String?
+  age           Int?
+  image         String?
+  Tibbiy        Tibbiy_korik[]
+  Appointments  Appointments[]
+  Comment       Comment[]
+  Payments      Payments[]
+  Patients_card Patients_card[]
 }
 
 model Patients_card {
-  id           Int     @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   patients_id  Int
   card_name    String
   card_number  String
   expire_month String
   expire_year  String
-  patients     Doctors @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  patients     Patients @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Tibbiy_korik {
@@ -190,18 +190,17 @@ model Tibbiy_korik {
 }
 
 model Appointments {
-  id               Int           @id @default(autoincrement())
-  status           String @default("pending")
+  id               Int      @id @default(autoincrement())
+  status           String   @default("pending")
   appointment_date String
   doctor_id        Int
   patient_id       Int
   service_id       Int
-  created_at       DateTime      @default(now())
-  updated_at       DateTime      @updatedAt
-  doctor           Doctors       @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  doctor           Doctors  @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  patient Patients @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
+  patient Patients        @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   service Doctor_services @relation(fields: [service_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
@@ -217,24 +216,20 @@ model Comment {
   doctor      Doctors        @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-
-
-
 model Payments {
-  id            Int       @id @default(autoincrement())
-  provider      String
-  transaction_id String 
-  amount        Decimal   @db.Decimal(10,2)
-  status        String 
-  card_last4    Int?
-  card_brand    String?
-  card_token    String?
-  is_default    Boolean   @default(false)
-  doctor_id     Int?
-  patients_id   Int? 
-  created_at    DateTime  @default(now())
+  id             Int      @id @default(autoincrement())
+  provider       String
+  transaction_id String
+  amount         Decimal  @default(0)
+  status         String
+  card_last4     Int?
+  card_brand     String?
+  card_token     String?
+  is_default     Boolean  @default(false)
+  doctor_id      Int?
+  patients_id    Int?
+  created_at     DateTime @default(now())
 
-  patients   Patients?       @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  doctor     Doctors?        @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  patients Patients? @relation(fields: [patients_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  doctor   Doctors?  @relation(fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
-

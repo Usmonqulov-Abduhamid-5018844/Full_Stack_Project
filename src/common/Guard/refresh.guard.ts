@@ -3,8 +3,6 @@ import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import { Observable } from "rxjs";
 
-import { ErrorHender } from "src/infrostructure/utils/catchError";
-
 @Injectable()
 export class RefreshGuard implements CanActivate {
     constructor(private readonly Jwt: JwtService,
@@ -27,7 +25,7 @@ export class RefreshGuard implements CanActivate {
             request["user"] = data
             return true
         } catch (error) {
-            return ErrorHender(error)
+           throw new UnauthorizedException(error)
         }
     }
 }

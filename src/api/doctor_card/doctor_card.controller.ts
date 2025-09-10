@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { DoctorCardService } from './doctor_card.service';
 import { CreateDoctorCardDto } from './dto/create-doctor_card.dto';
 import { AuthGuard } from 'src/common/Guard/auth.guard';
@@ -14,22 +24,31 @@ export class DoctorCardController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.DOCTOR)
   @Post()
-  create(@Body() createDoctorCardDto: CreateDoctorCardDto, @Req() req:Request) {
+  create(
+    @Body() createDoctorCardDto: CreateDoctorCardDto,
+    @Req() req: Request,
+  ) {
     return this.doctorCardService.create(createDoctorCardDto, req);
   }
 
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.ADMIN, ERols.DOCTOR, ERols.SUPPER_ADMIN)
   @Get()
-  findAll() {
-    return this.doctorCardService.findAll();
+  findAll(@Req() req: Request) {
+    return this.doctorCardService.findAll(req);
   }
 
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.ADMIN, ERols.DOCTOR, ERols.SUPPER_ADMIN)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.doctorCardService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    return this.doctorCardService.findOne(+id, req);
   }
 
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.ADMIN, ERols.DOCTOR, ERols.SUPPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.doctorCardService.remove(+id);
+  remove(@Param('id') id: string, @Req() req: Request) {
+    return this.doctorCardService.remove(+id, req);
   }
 }

@@ -3,9 +3,9 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { ErrorHender } from 'src/infrostructure/utils/catchError';
 import { ERols } from '../enum';
 
 @Injectable()
@@ -15,20 +15,17 @@ export class SelfGuardAll implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest();
-    try {
-      if (
-        req['user'].role === ERols.ADMIN ||
-        req['user'].role === ERols.SUPPER_ADMIN
-      ) {
-        return true;
-      }
 
-      if (req.params.id !== req['user'].id) {
-        throw new ForbiddenException('Forbidden user');
-      }
+    if (
+      req['user'].role === ERols.ADMIN ||
+      req['user'].role === ERols.SUPPER_ADMIN
+    ) {
       return true;
-    } catch (error) {
-      return ErrorHender(error);
     }
+
+    if (req.params.id !== String(req['user'].id)) {
+      throw new ForbiddenException('Siz bu resursga kira olmaysiz');
+    }
+    return true;
   }
 }

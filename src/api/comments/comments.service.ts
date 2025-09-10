@@ -9,7 +9,14 @@ export class CommentsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createCommentDto: CreateCommentDto) {
+    const {doctor_id, patients_id} = createCommentDto
     try {
+      const doctor = await this.prisma.doctors.findUnique({where : {id:doctor_id}})
+      const patient = await this.prisma.patients.findUnique({where: {id: patients_id}})
+
+      if(!doctor || !patient){
+        throw new NotFoundException("doctor_id or patients_id Not fount")
+      }
       const data = await this.prisma.comment.create({ data: createCommentDto });
       return successRes(data, 201);
     } catch (error) {

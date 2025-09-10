@@ -49,9 +49,4 @@ export class PaymentCallbackDto {
   @IsOptional()
   @IsInt()
   patients_id?: number;
-
-  @ApiProperty({ example: 15 })
-  @IsOptional()
-  @IsInt()
-  appointment_id?: number;
 }

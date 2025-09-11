@@ -47,7 +47,7 @@ export class DoctorFileController {
       { name: 'yatt_file', maxCount: 1 },
       { name: 'sertifikat_file', maxCount: 1 },
       { name: 'tibiy_varaqa_file', maxCount: 1 },
-    ]),
+    ],  {limits: {fieldSize: 3 * 1024 * 1024}}),
   )
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.DOCTOR)

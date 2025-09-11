@@ -84,7 +84,7 @@ export class DoctorFileService {
             yatt_file: updateFiles.yatt_file || '',
             sertifikat_file: updateFiles.sertifikat_file || '',
             tibiy_varaqa_file: updateFiles.tibiy_varaqa_file || '',
-            doctor: doctor_id,
+            doctor_id: doctor_id,
           },
         });
 

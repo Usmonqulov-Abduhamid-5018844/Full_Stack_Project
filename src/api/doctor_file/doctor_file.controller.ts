@@ -39,7 +39,7 @@ export class DoctorFileController {
       },
     },
   })
-  @Post('create')
+  @Patch('update')
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'passport_file', maxCount: 1 },
@@ -47,7 +47,7 @@ export class DoctorFileController {
       { name: 'yatt_file', maxCount: 1 },
       { name: 'sertifikat_file', maxCount: 1 },
       { name: 'tibiy_varaqa_file', maxCount: 1 },
-    ],  {limits: {fieldSize: 3 * 1024 * 1024}}),
+    ],  {limits: {fieldSize: 2 * 1024 * 1024}}),
   )
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.DOCTOR)

@@ -74,7 +74,10 @@ export class ServiceTypeService {
           : {},
         include: {
           doctor_services: isDoctor
-            ? { where: { doctor_id: user.id } }
+            ? {
+                where: { doctor_id: user.id },
+                select: { id: true, price: true },
+              }
             : true,
         },
       });
@@ -89,7 +92,10 @@ export class ServiceTypeService {
 
   async findOne(id: number) {
     try {
-      const data = await this.prisma.service_type.findUnique({ where: { id } });
+      const data = await this.prisma.service_type.findUnique({
+        where: { id },
+        include: { doctor_services: { select: { id: true, price: true } } },
+      });
       if (!data) {
         throw new NotFoundException();
       }
@@ -124,28 +130,22 @@ export class ServiceTypeService {
         throw new ForbiddenException("Siz bu serviceni o'zgartira olmaysiz!");
       }
 
+        let updatedServiceType: any = {};
       if (doctorService && updateServiceTypeDto.price) {
-        await this.prisma.doctor_services.update({
+        updatedServiceType = await this.prisma.doctor_services.update({
           where: { id: doctorService.id },
           data: { price: updateServiceTypeDto.price },
         });
       }
 
-      if (
-        doctorService &&
-        (updateServiceTypeDto.service_name)
-      ) {
+      if (doctorService && updateServiceTypeDto.service_name) {
         throw new ForbiddenException(
-          "Siz service_name yoki desc ni o'zgartira olmaysiz!",
+          "Siz service_name ni o'zgartira olmaysiz!",
         );
       }
 
-      let updatedServiceType: any = {};
 
-      if (
-        isAdmin &&
-        (updateServiceTypeDto.service_name)
-      ) {
+      if (isAdmin && updateServiceTypeDto.service_name) {
         updatedServiceType = await this.prisma.service_type.update({
           where: { id },
           data: {

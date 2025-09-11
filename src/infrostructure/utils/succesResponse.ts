@@ -3,7 +3,7 @@ export const successRes = (
   code: number = 200,
   message = 'success',
 ) => {
-  if (code == 201) {
+  if (code == 201 && message == "success") {
     message = 'Creted';
   }
   return {

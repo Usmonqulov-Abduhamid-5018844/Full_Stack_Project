@@ -28,6 +28,7 @@ model Admins {
   full_name  String
   phone      String       @unique
   password   String
+  email      String?
   login      String
   status     EAdminStatus @default(active)
   image      String?
@@ -45,6 +46,7 @@ model Doctors {
   reyting               Int                     @default(0)
   reyting_count         Int                     @default(0)
   experience_years      Int?
+  email                 String?
   phone                 String?                 @unique
   password              String?
   role                  String                  @default("doctor")
@@ -78,7 +80,6 @@ model Doctor_services {
 model Service_type {
   id              Int               @id @default(autoincrement())
   service_name    String
-  desc            String?
   doctor_services Doctor_services[]
 }
 
@@ -102,7 +103,6 @@ model Doctor_specialization {
 model Specialization {
   id                    Int                     @id @default(autoincrement())
   name                  String
-  desc                  String?
   Doctor_specialization Doctor_specialization[]
 }
 
@@ -143,6 +143,7 @@ model Patients {
   id            Int             @id @default(autoincrement())
   first_name    String?
   last_name     String?
+  email         String?
   phone         String?         @unique
   gender        String?
   role          String          @default("patients")

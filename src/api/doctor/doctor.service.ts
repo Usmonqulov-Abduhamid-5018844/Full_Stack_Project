@@ -15,7 +15,7 @@ import { DoctorFileService } from '../doctor_file/doctor_file.service';
 import { DoctorIdDto } from './dto/doctor_id.dto';
 import { cretedDoctorDto } from './dto/creted-doctor.dto';
 import { Token } from 'src/infrostructure/utils/Token';
-import { ImageValidation } from 'src/common/pipe/image_validation';
+import { ImageValidation } from 'src/common/pipe/image_validation.pipe';
 import { Request } from 'express';
 import { contains } from 'class-validator';
 

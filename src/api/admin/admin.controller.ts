@@ -26,6 +26,7 @@ import { RoleGuard } from 'src/common/Guard/role.guard';
 import { Roles } from 'src/common/Decorator/Role.decorator';
 import { ERols } from 'src/common/enum';
 import { SelfGuard } from 'src/common/Guard/self.guard';
+import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
 
 @Controller('admin')
 export class AdminController implements OnModuleInit {
@@ -89,7 +90,7 @@ export class AdminController implements OnModuleInit {
 
   @UseGuards(AuthGuard, SelfGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id',ParseIdPipe) id: string) {
     return this.adminService.findOne(+id);
   }
 
@@ -128,7 +129,7 @@ export class AdminController implements OnModuleInit {
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIdPipe) id: string,
     @Body() updateAdminDto: UpdateAdminDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
@@ -139,7 +140,7 @@ export class AdminController implements OnModuleInit {
   @Roles(ERols.SUPPER_ADMIN)
   @ApiOperation({ summary: 'Supper Admin uchun' })
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIdPipe) id: string) {
     return this.adminService.remove(+id);
   }
 }

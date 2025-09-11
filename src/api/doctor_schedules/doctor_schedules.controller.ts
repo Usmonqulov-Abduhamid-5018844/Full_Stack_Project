@@ -17,6 +17,7 @@ import { RoleGuard } from 'src/common/Guard/role.guard';
 import { Roles } from 'src/common/Decorator/Role.decorator';
 import { ERols } from 'src/common/enum';
 import { Request } from 'express';
+import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
 
 @Controller('doctor-schedules')
 export class DoctorSchedulesController {
@@ -34,28 +35,33 @@ export class DoctorSchedulesController {
     return this.doctorSchedulesService.create(createDoctorScheduleDto, req);
   }
 
+  @UseGuards(AuthGuard)
   @Get()
-  findAll() {
-    return this.doctorSchedulesService.findAll();
+  findAll(@Req() req: Request) {
+    return this.doctorSchedulesService.findAll(req);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.doctorSchedulesService.findOne(+id);
+  findOne(@Param('id',ParseIdPipe) id: string, @Req() req: Request) {
+    return this.doctorSchedulesService.findOne(+id, req);
   }
 
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.DOCTOR)
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIdPipe) id: string,
     @Body() updateDoctorScheduleDto: UpdateDoctorScheduleDto,
+    @Req() req: Request
   ) {
-    return this.doctorSchedulesService.update(+id, updateDoctorScheduleDto);
+    return this.doctorSchedulesService.update(+id, updateDoctorScheduleDto, req);
   }
 
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.DOCTOR, ERols.ADMIN, ERols.SUPPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.doctorSchedulesService.remove(+id);
+  remove(@Param('id', ParseIdPipe) id: string, @Req() req: Request ) {
+    return this.doctorSchedulesService.remove(+id, req);
   }
 }

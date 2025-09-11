@@ -14,7 +14,7 @@ import { successRes } from 'src/infrostructure/utils/succesResponse';
 import { LoginAdminDto } from './dto/login-admin.dto';
 import { Token } from 'src/infrostructure/utils/Token';
 import { FileService } from '../file/file.service';
-import { ImageValidation } from 'src/common/pipe/image_validation';
+import { ImageValidation } from 'src/common/pipe/image_validation.pipe';
 
 @Injectable()
 export class AdminService {

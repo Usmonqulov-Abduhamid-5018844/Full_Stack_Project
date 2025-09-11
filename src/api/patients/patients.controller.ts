@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
@@ -16,7 +17,13 @@ import { UpdatePatientDto } from './dto/update-patient.dto';
 import { OtppatiensDto } from './dto/otp-patient.dto';
 import { ApiBody, ApiConsumes, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { EDoctorGender } from 'src/common/enum';
+import { EDoctorGender, ERols } from 'src/common/enum';
+import { AuthGuard } from 'src/common/Guard/auth.guard';
+import { RoleGuard } from 'src/common/Guard/role.guard';
+import { Roles } from 'src/common/Decorator/Role.decorator';
+import { SelfGuardAll } from 'src/common/Guard/self_All.guard';
+import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
+
 
 @Controller('patients')
 export class PatientsController {
@@ -47,13 +54,17 @@ export class PatientsController {
     enum: ['first_name', 'last_name', 'phone', 'gender'],
   })
   @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })
+  @UseGuards(AuthGuard,RoleGuard)
+  @Roles(ERols.ADMIN,ERols.SUPPER_ADMIN)
   @Get()
   findAll(@Query() query: Record<string, any>) {
     return this.patientsService.findAll(query);
   }
 
+  @UseGuards(AuthGuard,RoleGuard)
+  @Roles(ERols.ADMIN,ERols.SUPPER_ADMIN)
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id',ParseIdPipe) id: string) {
     return this.patientsService.findOne(+id);
   }
 
@@ -96,18 +107,20 @@ export class PatientsController {
       },
     },
   })
+  @UseGuards(AuthGuard, SelfGuardAll)
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIdPipe) id: string,
     @Body() updatePatientDto: UpdatePatientDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.patientsService.update(+id, updatePatientDto, file);
   }
 
+  @UseGuards(AuthGuard, SelfGuardAll)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIdPipe) id: string) {
     return this.patientsService.remove(+id);
   }
 }

@@ -16,6 +16,7 @@ import { RoleGuard } from 'src/common/Guard/role.guard';
 import { Roles } from 'src/common/Decorator/Role.decorator';
 import { ERols } from 'src/common/enum';
 import { Request } from 'express';
+import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
 
 @Controller('doctor-card')
 export class DoctorCardController {
@@ -41,14 +42,14 @@ export class DoctorCardController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.ADMIN, ERols.DOCTOR, ERols.SUPPER_ADMIN)
   @Get(':id')
-  findOne(@Param('id') id: string, @Req() req: Request) {
+  findOne(@Param('id', ParseIdPipe) id: string, @Req() req: Request) {
     return this.doctorCardService.findOne(+id, req);
   }
 
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.ADMIN, ERols.DOCTOR, ERols.SUPPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() req: Request) {
+  remove(@Param('id', ParseIdPipe) id: string, @Req() req: Request) {
     return this.doctorCardService.remove(+id, req);
   }
 }

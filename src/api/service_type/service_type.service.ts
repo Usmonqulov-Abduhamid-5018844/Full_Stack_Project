@@ -1,27 +1,83 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateServiceTypeDto } from './dto/create-service_type.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { successRes } from 'src/infrostructure/utils/succesResponse';
 import { ErrorHender } from 'src/infrostructure/utils/catchError';
 import { UpdateServiceTypeDto } from './dto/update-service_type.dto';
+import { Request } from 'express';
+import { ERols } from 'src/common/enum';
 
 @Injectable()
 export class ServiceTypeService {
   constructor(private readonly prisma: PrismaService) {}
-  async create(createServiceTypeDto: CreateServiceTypeDto) {
+
+  async create(createServiceTypeDto: CreateServiceTypeDto, req: Request) {
+    const user = req['user'];
+    const { price, service_name } = createServiceTypeDto;
+
     try {
-      const data = await this.prisma.service_type.create({
-        data: { ...createServiceTypeDto },
+      let serviceType = await this.prisma.service_type.findFirst({
+        where: { service_name },
       });
-      return successRes(data, 201);
+
+      if (serviceType) {
+        const exists = await this.prisma.doctor_services.findFirst({
+          where: {
+            doctor_id: user.id,
+            service_type_id: serviceType.id,
+          },
+          select: { id: true },
+        });
+
+        if (exists) {
+          throw new ConflictException('Sizda bu service allaqachon mavjud.');
+        }
+      } else {
+        serviceType = await this.prisma.service_type.create({
+          data: { service_name },
+        });
+      }
+
+      const doctorService = await this.prisma.doctor_services.create({
+        data: {
+          doctor_id: user.id,
+          service_type_id: serviceType.id,
+          price,
+        },
+      });
+
+      return successRes(
+        {
+          ...doctorService,
+          service_type: serviceType,
+        },
+        201,
+      );
     } catch (error) {
       return ErrorHender(error);
     }
   }
 
-  async findAll() {
+  async findAll(req: Request) {
+    const user = req['user'];
     try {
-      const data = await this.prisma.service_type.findMany();
+      const isDoctor = user.role === ERols.DOCTOR;
+
+      const data = await this.prisma.service_type.findMany({
+        where: isDoctor
+          ? { doctor_services: { some: { doctor_id: user.id } } }
+          : {},
+        include: {
+          doctor_services: isDoctor
+            ? { where: { doctor_id: user.id } }
+            : true,
+        },
+      });
       if (!data.length) {
         throw new NotFoundException();
       }
@@ -43,29 +99,107 @@ export class ServiceTypeService {
     }
   }
 
-  async update(id: number, updateServiceTypeDto: UpdateServiceTypeDto) {
+  async update(
+    id: number,
+    updateServiceTypeDto: UpdateServiceTypeDto,
+    req: Request,
+  ) {
+    const user = req['user'];
     try {
-      const data = await this.prisma.service_type.findUnique({ where: { id } });
-      if (!data) {
-        throw new NotFoundException();
-      }
-      const newData = await this.prisma.service_type.update({
+      const data = await this.prisma.service_type.findUnique({
         where: { id },
-        data: { ...updateServiceTypeDto },
+        include: { doctor_services: true },
       });
-      return successRes(newData);
+
+      if (!data?.doctor_services.length) {
+        throw new NotFoundException('Sizda bunday service mavjud emas');
+      }
+
+      const doctorService = data.doctor_services.find(
+        (i) => i.doctor_id === user.id,
+      );
+      const isAdmin = [ERols.ADMIN, ERols.SUPPER_ADMIN].includes(user.role);
+
+      if (!doctorService && !isAdmin) {
+        throw new ForbiddenException("Siz bu serviceni o'zgartira olmaysiz!");
+      }
+
+      if (doctorService && updateServiceTypeDto.price) {
+        await this.prisma.doctor_services.update({
+          where: { id: doctorService.id },
+          data: { price: updateServiceTypeDto.price },
+        });
+      }
+
+      if (
+        doctorService &&
+        (updateServiceTypeDto.service_name)
+      ) {
+        throw new ForbiddenException(
+          "Siz service_name yoki desc ni o'zgartira olmaysiz!",
+        );
+      }
+
+      let updatedServiceType: any = {};
+
+      if (
+        isAdmin &&
+        (updateServiceTypeDto.service_name)
+      ) {
+        updatedServiceType = await this.prisma.service_type.update({
+          where: { id },
+          data: {
+            ...(updateServiceTypeDto.service_name && {
+              service_name: updateServiceTypeDto.service_name,
+            }),
+          },
+        });
+      }
+
+      return successRes(
+        {
+          ...(updatedServiceType || {}),
+        },
+        200,
+        'Service updated successfully',
+      );
     } catch (error) {
       return ErrorHender(error);
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, req: Request) {
+    const user = req['user'];
     try {
-      const data = await this.prisma.service_type.findUnique({ where: { id } });
-      if (!data) {
-        throw new NotFoundException();
+      const data = await this.prisma.service_type.findUnique({
+        where: { id },
+        include: { doctor_services: true },
+      });
+
+      if (!data?.doctor_services.length) {
+        throw new NotFoundException('Service topilmadi');
       }
-      await this.prisma.service_type.delete({ where: { id } });
+
+      const isOwner = data.doctor_services.some((i) => i.doctor_id === user.id);
+      const isAdmin = [ERols.ADMIN, ERols.SUPPER_ADMIN].includes(user.role);
+
+      if (!isOwner && !isAdmin) {
+        throw new ForbiddenException("Siz bu serviceni o'chira olmaysiz!");
+      }
+      if (isAdmin) {
+        await this.prisma.service_type.delete({ where: { id } });
+      } else {
+        const doctorService = data.doctor_services.find(
+          (i) => i.doctor_id === user.id,
+        );
+        if (!doctorService) {
+          throw new ForbiddenException("Siz bu serviceni o'chira olmaysiz!");
+        }
+        await this.prisma.doctor_services.delete({
+          where: { id: doctorService.id },
+        });
+      }
+
       return { message: 'Deleted', statusCode: 200 };
     } catch (error) {
       return ErrorHender(error);

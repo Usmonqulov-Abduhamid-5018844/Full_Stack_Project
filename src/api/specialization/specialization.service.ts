@@ -63,11 +63,6 @@ export class SpecializationService {
         where: isDoctor
           ? { Doctor_specialization: { some: { doctor_id: user.id } } }
           : {},
-        include: {
-          Doctor_specialization: isDoctor
-            ? { where: { doctor_id: user.id } }
-            : true,
-        },
       });
       if (!data.length) {
         throw new NotFoundException();

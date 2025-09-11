@@ -208,7 +208,7 @@ model Appointments {
 model Comment {
   id          Int            @id @default(autoincrement())
   message     String
-  star        Int
+  star        Int?
   sender      ECommentSender
   patients_id Int
   doctor_id   Int

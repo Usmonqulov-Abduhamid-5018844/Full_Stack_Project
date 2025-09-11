@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDoctorScheduleDto } from './dto/create-doctor_schedule.dto';
 import { UpdateDoctorScheduleDto } from './dto/update-doctor_schedule.dto';
 import { ErrorHender } from 'src/infrostructure/utils/catchError';
@@ -14,18 +14,21 @@ export class DoctorSchedulesService {
   async create(createDoctorScheduleDto: CreateDoctorScheduleDto, req: Request) {
     const doctor_id = Number(req['user'].id);
     try {
-      let newData: any = { ...createDoctorScheduleDto };
-      if (createDoctorScheduleDto.day_of_week) {
-        newData.day_of_week = createDoctorScheduleDto.day_of_week.toString();
+
+      const check = await this.prisma.doctor_schedules.findFirst({where: {doctor_id, day_of_week: createDoctorScheduleDto.day_of_week}})
+      if(check){
+        throw new ConflictException(`Siz ${createDoctorScheduleDto.day_of_week} kuni uchun ish rejasini yaratgansiz`);
+
       }
       const data = await this.prisma.doctor_schedules.create({
-        data: { ...newData, doctor_id },
+        data: { ...createDoctorScheduleDto, doctor_id },
       });
       return successRes(data, 201);
     } catch (error) {
       return ErrorHender(error);
     }
   }
+
   async findAll(req:Request) {
     const user = req["user"]
     const where = user.role === ERols.DOCTOR ? {doctor_id: user.id} : {}

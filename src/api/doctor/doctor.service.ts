@@ -69,86 +69,76 @@ export class DoctorService {
   ) {
     const { doctor_id } = doctor;
     const savetFiles: string[] = [];
+    const fileFields = [
+      'passport_file',
+      'diplom_file',
+      'yatt_file',
+      'sertifikat_file',
+      'tibiy_varaqa_file',
+    ];
+
     try {
-      const data = await this.prisma.doctors.findFirst({
+      const doctorData = await this.prisma.doctors.findUnique({
         where: { id: doctor_id },
       });
-      if (!data) {
-        throw new NotFoundException('doctot id not fount');
-      }
+      if (!doctorData) throw new NotFoundException('Doctor id not found');
 
       const doctor_files = await this.prisma.doctor_file.findFirst({
         where: { doctor_id },
       });
-      const updateFiles: any = {};
+      const updateFiles: Record<string, string> = {};
 
-      if (files.diplom_file?.length) {
-        const file = await this.fileService.createFile(files.diplom_file[0]);
-        savetFiles.push(file);
-        updateFiles.diplom_file = file;
-        if (doctor_files && doctor_files.diplom_file) {
-          await this.fileService.deleteFile(doctor_files.diplom_file);
+      for (const field of fileFields) {
+        if (files[field]?.length) {
+          const fileUrl = await this.fileService.createFile(files[field][0]);
+          savetFiles.push(fileUrl);
+          updateFiles[field] = fileUrl;
+
+          if (doctor_files && doctor_files[field]) {
+            try {
+              if (await this.fileService.existFile(doctor_files[field])) {
+                await this.fileService.deleteFile(doctor_files[field]);
+              }
+            } catch {}
+          }
         }
       }
-      if (files.passport_file?.length) {
-        const file = await this.fileService.createFile(files.passport_file[0]);
-        savetFiles.push(file);
-        updateFiles.passport_file = file;
-        if (doctor_files && doctor_files.passport_file) {
-          await this.fileService.deleteFile(doctor_files.passport_file);
-        }
-      }
-      if (files.sertifikat_file?.length) {
-        const file = await this.fileService.createFile(
-          files.sertifikat_file[0],
-        );
-        savetFiles.push(file);
-        updateFiles.sertifikat_file = file;
-        if (doctor_files && doctor_files.sertifikat_file) {
-          await this.fileService.deleteFile(doctor_files.sertifikat_file);
-        }
-      }
-      if (files.tibiy_varaqa_file?.length) {
-        const file = await this.fileService.createFile(
-          files.tibiy_varaqa_file[0],
-        );
-        savetFiles.push(file);
-        updateFiles.tibiy_varaqa_file = file;
-        if (doctor_files && doctor_files.tibiy_varaqa_file) {
-          await this.fileService.deleteFile(doctor_files.tibiy_varaqa_file);
-        }
-      }
-      if (files.yatt_file?.length) {
-        const file = await this.fileService.createFile(files.yatt_file[0]);
-        savetFiles.push(file);
-        updateFiles.yatt_file = file;
-        if (doctor_files && doctor_files.yatt_file) {
-          await this.fileService.deleteFile(doctor_files.yatt_file);
-        }
-      }
+
+      let result: any = {};
       if (doctor_files) {
-        const updateDoctorFile = await this.prisma.doctor_file.update({
+        result = await this.prisma.doctor_file.update({
           where: { id: doctor_files.id },
-          data: { ...updateFiles },
+          data: updateFiles,
         });
         return successRes(
-          updateDoctorFile,
+          result,
           200,
-          "Malumotlaringiz muvofiyaqatliy O'zgartirildi. Admin 24 soat ichida ko'rib chiqadi va sizga xabar beriladi.",
+          "Malumotlaringiz muvaffaqiyatli o'zgartirildi. Admin 24 soat ichida ko'rib chiqadi va sizga xabar beriladi.",
         );
       } else {
-        const cretDoctorfile = await this.prisma.doctor_file.create({
-          data: { ...updateFiles, doctor_id },
+        result = await this.prisma.doctor_file.create({
+          data: {
+            passport_file: updateFiles.passport_file || '',
+            diplom_file: updateFiles.diplom_file || '',
+            yatt_file: updateFiles.yatt_file || '',
+            sertifikat_file: updateFiles.sertifikat_file || '',
+            tibiy_varaqa_file: updateFiles.tibiy_varaqa_file || '',
+            doctor_id: doctor_id,
+          },
         });
         return successRes(
-          cretDoctorfile,
+          result,
           201,
-          "Malumotlaringiz muvofiyaqatliy saqlandi. Admin 24 soat ichida ko'rib chiqadi va sizga xabar beriladi.",
+          "Malumotlaringiz muvaffaqiyatli saqlandi. Admin 24 soat ichida ko'rib chiqadi va sizga xabar beriladi.",
         );
       }
     } catch (error) {
+      // rollback: yuklangan fayllarni o'chirish
       for (const f of savetFiles) {
-        await this.fileService.deleteFile(f).catch(() => {});
+        try {
+          if (await this.fileService.existFile(f))
+            await this.fileService.deleteFile(f);
+        } catch {}
       }
       return ErrorHender(error);
     }

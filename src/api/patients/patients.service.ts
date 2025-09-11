@@ -13,7 +13,7 @@ import { Token } from 'src/infrostructure/utils/Token';
 import { ErrorHender } from 'src/infrostructure/utils/catchError';
 import { OtppatiensDto } from './dto/otp-patient.dto';
 import { successRes } from 'src/infrostructure/utils/succesResponse';
-import { ImageValidation } from 'src/common/pipe/image_validation';
+import { ImageValidation } from 'src/common/pipe/image_validation.pipe';
 
 @Injectable()
 export class PatientsService {
@@ -49,7 +49,6 @@ export class PatientsService {
       }
     } catch (error) {
       console.log(error);
-
       return ErrorHender(error);
     }
   }

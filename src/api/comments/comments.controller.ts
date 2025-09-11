@@ -14,6 +14,7 @@ import { AuthGuard } from 'src/common/Guard/auth.guard';
 import { RoleGuard } from 'src/common/Guard/role.guard';
 import { Roles } from 'src/common/Decorator/Role.decorator';
 import { ERols } from 'src/common/enum';
+import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
 
 @Controller('comments')
 export class CommentsController {
@@ -34,14 +35,14 @@ export class CommentsController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIdPipe) id: string) {
     return this.commentsService.findOne(+id);
   }
 
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.ADMIN, ERols.SUPPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIdPipe) id: string) {
     return this.commentsService.remove(+id);
   }
 }

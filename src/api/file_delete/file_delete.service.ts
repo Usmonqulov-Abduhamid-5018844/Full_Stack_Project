@@ -5,7 +5,10 @@ import { FileService } from '../file/file.service';
 @Injectable()
 export class FileDeleteService {
   constructor(private readonly fileService: FileService) {}
+  
   async remove(URL: string) {
+    console.log("AAAAA");
+    
     try {
       if (await this.fileService.existFile(URL)) {
         await this.fileService.deleteFile(URL);

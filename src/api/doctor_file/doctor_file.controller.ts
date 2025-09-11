@@ -13,13 +13,14 @@ import {
 } from '@nestjs/common';
 import { DoctorFileService } from './doctor_file.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { FileValidation } from 'src/common/pipe/file_validationPipe';
+import { FileValidation } from 'src/common/pipe/file_validation.pipe';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { AuthGuard } from 'src/common/Guard/auth.guard';
 import { RoleGuard } from 'src/common/Guard/role.guard';
 import { Roles } from 'src/common/Decorator/Role.decorator';
 import { ERols } from 'src/common/enum';
 import { Request } from 'express';
+import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
 
 @Controller('doctor-file')
 export class DoctorFileController {
@@ -74,14 +75,14 @@ export class DoctorFileController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.ADMIN, ERols.SUPPER_ADMIN, ERols.DOCTOR)
   @Get(':id')
-  findOne(@Param('id') id: string, @Req() req: Request) {
+  findOne(@Param('id', ParseIdPipe) id: string, @Req() req: Request) {
     return this.doctorFileService.findOne(+id, req);
   }
 
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.ADMIN, ERols.SUPPER_ADMIN, ERols.DOCTOR)
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() req: Request) {
+  remove(@Param('id', ParseIdPipe) id: string, @Req() req: Request) {
     return this.doctorFileService.remove(+id, req);
   }
 }

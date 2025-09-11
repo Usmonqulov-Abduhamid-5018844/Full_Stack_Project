@@ -7,11 +7,4 @@ export class CreateSpecializationDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({
-    example: `Asab tizimi kasalliklari bilan shug'ullanadigan mutaxassis`,
-    description: 'Mutaxassislik haqida qisqa izoh',
-  })
-  @IsOptional()
-  @IsString()
-  desc?: string;
 }

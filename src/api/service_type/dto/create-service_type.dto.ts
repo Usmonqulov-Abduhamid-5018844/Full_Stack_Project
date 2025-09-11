@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateServiceTypeDto {
   @ApiProperty({ example: 'konsultatsiya' })
@@ -8,9 +9,8 @@ export class CreateServiceTypeDto {
   @IsNotEmpty()
   service_name: string;
 
-  @ApiProperty({ example: 'Masofaviy yoki ofisda beriladigan konsultatsiya' })
-  @IsString()
-  @IsOptional()
-  @MaxLength(500)
-  desc?: string;
+  @ApiProperty({example: 15000})
+  @Type(()=> Number)
+  @IsNumber()
+  price: number
 }

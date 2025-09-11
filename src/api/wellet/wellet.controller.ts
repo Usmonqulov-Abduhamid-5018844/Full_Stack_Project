@@ -15,15 +15,16 @@ import { RoleGuard } from 'src/common/Guard/role.guard';
 import { Roles } from 'src/common/Decorator/Role.decorator';
 import { ERols } from 'src/common/enum';
 import { Request } from 'express';
+import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
 
 @Controller('wellet')
 export class WelletController {
   constructor(private readonly welletService: WelletService) {}
 
   @UseGuards(AuthGuard, RoleGuard)
-  @Roles(ERols.DOCTOR, ERols.ADMIN, ERols.SUPPER_ADMIN)
-  @Get(':id')
-  findOne(@Param('id') id: string, @Req() req: Request) {
-    return this.welletService.findOne(+id, req);
+  @Roles(ERols.DOCTOR)
+  @Get()
+  find(@Req() req: Request) {
+    return this.welletService.find(req);
   }
 }

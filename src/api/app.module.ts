@@ -5,7 +5,6 @@ import { DoctorModule } from './doctor/doctor.module';
 import { AdminModule } from './admin/admin.module';
 import { PatientsModule } from './patients/patients.module';
 import { TibbiyKorikModule } from './tibbiy_korik/tibbiy_korik.module';
-import { DoctorServicesModule } from './doctor_services/doctor_services.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { PaymentsModule } from './payments/payments.module';
 import { CommentsModule } from './comments/comments.module';
@@ -17,7 +16,6 @@ import { DoctorSchedulesModule } from './doctor_schedules/doctor_schedules.modul
 import { AppController } from './app.controller';
 import { PatientsCardModule } from './patients_card/patients_card.module';
 import { DoctorCardModule } from './doctor_card/doctor_card.module';
-import { DoctorSpecializationModule } from './doctor_specialization/doctor_specialization.module';
 import { JwtModule } from '@nestjs/jwt';
 import { FileModule } from './file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -44,7 +42,6 @@ import { RefreshTokenModule } from './refresh_token/refresh_token.module';
     AdminModule,
     PatientsModule,
     TibbiyKorikModule,
-    DoctorServicesModule,
     AppointmentsModule,
     PaymentsModule,
     CommentsModule,
@@ -55,7 +52,6 @@ import { RefreshTokenModule } from './refresh_token/refresh_token.module';
     DoctorSchedulesModule,
     PatientsCardModule,
     DoctorCardModule,
-    DoctorSpecializationModule,
     FileDeleteModule,
     MeModule,
     RefreshTokenModule,

@@ -21,7 +21,7 @@ import {
   FileFieldsInterceptor,
   FileInterceptor,
 } from '@nestjs/platform-express';
-import { FileValidation } from 'src/common/pipe/file_validationPipe';
+import { FileValidation } from 'src/common/pipe/file_validation.pipe';
 import { DoctorIdDto } from './dto/doctor_id.dto';
 import { cretedDoctorDto } from './dto/creted-doctor.dto';
 import { EDoctorGender, ERegion, ERols } from 'src/common/enum';
@@ -30,6 +30,7 @@ import { AuthGuard } from 'src/common/Guard/auth.guard';
 import { RoleGuard } from 'src/common/Guard/role.guard';
 import { Roles } from 'src/common/Decorator/Role.decorator';
 import { SelfGuard } from 'src/common/Guard/self.guard';
+import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
 
 @Controller('doctor')
 export class DoctorController {
@@ -129,7 +130,7 @@ export class DoctorController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id',ParseIdPipe) id: string) {
     return this.doctorService.findOne(+id);
   }
 
@@ -173,7 +174,7 @@ export class DoctorController {
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIdPipe) id: string,
     @Body() updateDoctorDto: UpdateDoctorDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
@@ -183,7 +184,7 @@ export class DoctorController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.ADMIN, ERols.SUPPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIdPipe) id: string) {
     return this.doctorService.remove(+id);
   }
 }

@@ -16,6 +16,7 @@ import { RoleGuard } from 'src/common/Guard/role.guard';
 import { Roles } from 'src/common/Decorator/Role.decorator';
 import { ERols } from 'src/common/enum';
 import { Request } from 'express';
+import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
 
 @Controller('patients-card')
 export class PatientsCardController {
@@ -31,18 +32,24 @@ export class PatientsCardController {
     return this.patientsCardService.create(createPatientsCardDto, req);
   }
 
+  @UseGuards(AuthGuard,RoleGuard)
+  @Roles(ERols.ADMIN,ERols.PATIENTS,ERols.SUPPER_ADMIN)
   @Get()
-  findAll() {
-    return this.patientsCardService.findAll();
+  findAll(@Req()req: Request) {
+    return this.patientsCardService.findAll(req);
   }
 
+    @UseGuards(AuthGuard,RoleGuard)
+  @Roles(ERols.ADMIN,ERols.PATIENTS,ERols.SUPPER_ADMIN)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.patientsCardService.findOne(+id);
+  findOne(@Param('id',ParseIdPipe) id: string, @Req() req:Request) {
+    return this.patientsCardService.findOne(+id, req);
   }
 
+    @UseGuards(AuthGuard,RoleGuard)
+  @Roles(ERols.ADMIN,ERols.PATIENTS,ERols.SUPPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.patientsCardService.remove(+id);
+  remove(@Param('id', ParseIdPipe) id: string, @Req() req: Request) {
+    return this.patientsCardService.remove(+id,req);
   }
 }

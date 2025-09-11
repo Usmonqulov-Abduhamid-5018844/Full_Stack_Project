@@ -27,38 +27,32 @@ export class FileService {
       });
       return `${this.Base_url}/${file_name}`;
     } catch (error) {
-      console.log(error);
 
       return ErrorHender(error);
     }
   }
 
-  async deleteFile(files: string): Promise<void> {
-    try {
-      const prefix = this.Base_url + '/'!;
-      const file = files.replace(prefix, '');
-      const file_path = resolve(
-        __dirname,
-        '..',
-        '..',
-        '..',
-        '..',
-        'uplout',
-        file,
-      );
-      if (!existsSync(file_path)) {
-        ErrorHender(error);
-      }
-      await new Promise<void>((resolve, reject) => {
-        unlink(file_path, (err) => {
-          if (err) reject(err);
-          resolve();
-        });
-      });
-    } catch (error) {
-      ErrorHender(error);
+ async deleteFile(fileUrl: string): Promise<void> {
+  try {
+    const prefix = this.Base_url + '/';
+    const fileName = fileUrl.replace(prefix, '');
+    const filePath = resolve(__dirname, '..', '..', '..', '..', 'uplout', fileName);
+
+    if (!existsSync(filePath)) {
+      return;
     }
+
+    await new Promise<void>((resolve, reject) => {
+      unlink(filePath, (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+  } catch (err) {
   }
+}
+
 
   async existFile(file_name: any) {
     const file = file_name.replace(this.Base_url + '/', '');

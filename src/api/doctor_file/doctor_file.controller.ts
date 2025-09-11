@@ -52,8 +52,8 @@ export class DoctorFileController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.DOCTOR)
   create(
-    @Req() req: Record<string, any>,
-    @UploadedFiles(FileValidation)
+    @Req() req: Request,
+    @UploadedFiles()
     files: {
       passport_file?: Express.Multer.File[];
       diplom_file?: Express.Multer.File[];
@@ -62,7 +62,8 @@ export class DoctorFileController {
       tibiy_varaqa_file?: Express.Multer.File[];
     },
   ) {
-    return this.doctorFileService.create(files, req);
+     const validatedFiles = new FileValidation().transform(files);
+    return this.doctorFileService.create(validatedFiles, req);
   }
 
   @UseGuards(AuthGuard, RoleGuard)

@@ -74,7 +74,7 @@ export class DoctorController {
   )
   add_files(
     @Body() body: DoctorIdDto,
-    @UploadedFiles(FileValidation)
+    @UploadedFiles()
     files: {
       passport_file?: Express.Multer.File[];
       diplom_file?: Express.Multer.File[];
@@ -83,7 +83,8 @@ export class DoctorController {
       tibiy_varaqa_file?: Express.Multer.File[];
     },
   ) {
-    return this.doctorService.add_files(files, body);
+    const validatedFiles = new FileValidation().transform(files);
+    return this.doctorService.add_files(validatedFiles, body);
   }
 
   @Post('login')
@@ -130,7 +131,7 @@ export class DoctorController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id',ParseIdPipe) id: string) {
+  findOne(@Param('id', ParseIdPipe) id: string) {
     return this.doctorService.findOne(+id);
   }
 

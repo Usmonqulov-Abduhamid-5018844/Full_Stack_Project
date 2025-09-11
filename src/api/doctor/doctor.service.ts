@@ -57,18 +57,12 @@ export class DoctorService {
       return ErrorHender(error);
     }
   }
+
   async add_files(
-    files: {
-      passport_file?: Express.Multer.File[];
-      diplom_file?: Express.Multer.File[];
-      yatt_file?: Express.Multer.File[];
-      sertifikat_file?: Express.Multer.File[];
-      tibiy_varaqa_file?: Express.Multer.File[];
-    },
+    files: Record<string, Express.Multer.File[]>,
     doctor: DoctorIdDto,
   ) {
     const { doctor_id } = doctor;
-    const savetFiles: string[] = [];
     const fileFields = [
       'passport_file',
       'diplom_file',
@@ -76,6 +70,7 @@ export class DoctorService {
       'sertifikat_file',
       'tibiy_varaqa_file',
     ];
+    const updateFiles: Record<string, string> = {};
 
     try {
       const doctorData = await this.prisma.doctors.findUnique({
@@ -86,24 +81,26 @@ export class DoctorService {
       const doctor_files = await this.prisma.doctor_file.findFirst({
         where: { doctor_id },
       });
-      const updateFiles: Record<string, string> = {};
 
-      for (const field of fileFields) {
+      const savePromises = fileFields.map(async (field) => {
         if (files[field]?.length) {
           const fileUrl = await this.fileService.createFile(files[field][0]);
-          savetFiles.push(fileUrl);
           updateFiles[field] = fileUrl;
 
           if (doctor_files && doctor_files[field]) {
-            try {
-              if (await this.fileService.existFile(doctor_files[field])) {
-                await this.fileService.deleteFile(doctor_files[field]);
-              }
-            } catch {}
+            this.fileService
+              .existFile(doctor_files[field])
+              .then((exist) => {
+                if (exist) {
+                  return this.fileService.deleteFile(doctor_files[field]);
+                }
+              })
+              .catch(console.error);
           }
+          return fileUrl;
         }
-      }
-
+      });
+      await Promise.all(savePromises);
       let result: any = {};
       if (doctor_files) {
         result = await this.prisma.doctor_file.update({
@@ -118,12 +115,12 @@ export class DoctorService {
       } else {
         result = await this.prisma.doctor_file.create({
           data: {
+            doctor_id,
             passport_file: updateFiles.passport_file || '',
             diplom_file: updateFiles.diplom_file || '',
             yatt_file: updateFiles.yatt_file || '',
             sertifikat_file: updateFiles.sertifikat_file || '',
             tibiy_varaqa_file: updateFiles.tibiy_varaqa_file || '',
-            doctor_id: doctor_id,
           },
         });
         return successRes(
@@ -133,13 +130,16 @@ export class DoctorService {
         );
       }
     } catch (error) {
-      // rollback: yuklangan fayllarni o'chirish
-      for (const f of savetFiles) {
-        try {
-          if (await this.fileService.existFile(f))
-            await this.fileService.deleteFile(f);
-        } catch {}
-      }
+      Object.values(updateFiles).forEach((f) => {
+        this.fileService
+          .existFile(f)
+          .then((exist) => {
+            if (exist) {
+              return this.fileService.deleteFile(f);
+            }
+          })
+          .catch(console.error);
+      });
       return ErrorHender(error);
     }
   }

@@ -70,18 +70,12 @@ export class DoctorController {
       { name: 'yatt_file', maxCount: 1 },
       { name: 'sertifikat_file', maxCount: 1 },
       { name: 'tibiy_varaqa_file', maxCount: 1 },
-    ]),
+    ], {limits: {fieldSize: 3 * 1024 * 1024}}),
   )
   add_files(
     @Body() body: DoctorIdDto,
     @UploadedFiles()
-    files: {
-      passport_file?: Express.Multer.File[];
-      diplom_file?: Express.Multer.File[];
-      yatt_file?: Express.Multer.File[];
-      sertifikat_file?: Express.Multer.File[];
-      tibiy_varaqa_file?: Express.Multer.File[];
-    },
+    files: Record<string, Express.Multer.File[]>,
   ) {
     const validatedFiles = new FileValidation().transform(files);
     return this.doctorService.add_files(validatedFiles, body);

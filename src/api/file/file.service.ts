@@ -1,36 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { error } from 'console';
-import { existsSync, mkdirSync, unlink, writeFile } from 'fs';
+import { existsSync, mkdirSync, unlink } from 'fs';
 import { extname, join, resolve } from 'path';
 import { ErrorHender } from 'src/infrostructure/utils/catchError';
 import { v4 } from 'uuid';
 import * as dotenv from 'dotenv';
+import { writeFile } from 'fs/promises';
 dotenv.config();
 
 @Injectable()
 export class FileService {
   private readonly Base_url = process.env.BASE_API;
-  async createFile(file: Express.Multer.File | any): Promise<string> {
-    try {
-      const ext = extname(file.originalname);
-      const file_name = `${file.originalname.split('.')[0]}__${v4()}${ext.toLowerCase()}`;
-      const file_path = resolve(__dirname, '..', '..', '..', '..', 'uplout');
-      if (!existsSync(file_path)) {
-        mkdirSync(file_path, { recursive: true });
-      }
 
-      await new Promise<void>((resolve, reject) => {
-        writeFile(join(file_path, file_name), file.buffer, (err) => {
-          if (err) reject(err);
-          resolve();
-        });
-      });
-      return `${this.Base_url}/${file_name}`;
-    } catch (error) {
+async createFile(file: Express.Multer.File | any): Promise<string> {
+  try {
+    const ext = extname(file.originalname);
+    const file_name = `${file.originalname.split('.')[0]}__${v4()}${ext.toLowerCase()}`;
+    const file_path = resolve(__dirname, '..', '..', '..', '..', 'uplout');
 
-      return ErrorHender(error);
-    }
+    if (!existsSync(file_path)) mkdirSync(file_path, { recursive: true });
+
+    await writeFile(join(file_path, file_name), file.buffer);
+
+    return `${this.Base_url}/${file_name}`;
+  } catch (error) {
+    return ErrorHender(error);
   }
+}
 
  async deleteFile(fileUrl: string): Promise<void> {
   try {

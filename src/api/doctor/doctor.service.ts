@@ -11,13 +11,12 @@ import { OtpGenerate } from 'src/infrostructure/otp_generet/otp_generate';
 import { OtpDoctorDto } from './dto/otp-doctor.dto';
 import { successRes } from 'src/infrostructure/utils/succesResponse';
 import { FileService } from '../file/file.service';
-import { DoctorFileService } from '../doctor_file/doctor_file.service';
 import { DoctorIdDto } from './dto/doctor_id.dto';
 import { cretedDoctorDto } from './dto/creted-doctor.dto';
 import { Token } from 'src/infrostructure/utils/Token';
 import { ImageValidation } from 'src/common/pipe/image_validation.pipe';
 import { Request } from 'express';
-import { contains } from 'class-validator';
+import { MailService } from 'src/common/mail/mail.service';
 
 @Injectable()
 export class DoctorService {
@@ -26,34 +25,54 @@ export class DoctorService {
     private readonly Otp: OtpGenerate,
     private readonly fileService: FileService,
     private readonly TokenGenerate: Token,
+    private readonly mail: MailService,
   ) {}
 
-  async create(createDoctorDto: cretedDoctorDto) {
-    const { phone } = createDoctorDto;
-    try {
-      const data = await this.prisma.doctors.findFirst({ where: { phone } });
-      if (data) {
-        throw new ConflictException('Alredy exists');
-      }
-      let otp = this.Otp.Generate(phone);
-      return { otp, message: 'otp orqaliy shaxsingizni tasdiqlayng.' };
-    } catch (error) {
-      return ErrorHender(error);
-    }
-  }
-
   async verify(Otpdata: OtpDoctorDto) {
-    const { phone, otp } = Otpdata;
+    const { phone, otp, email } = Otpdata;
     try {
-      if (this.Otp.verify(phone, otp)) {
-        const data = await this.prisma.doctors.create({ data: { phone } });
-        return successRes(data, 201);
-      } else {
-        throw new BadRequestException('Otp expirns');
+      const doctor = await this.prisma.doctors.findFirst({
+        where: { phone, email },
+      });
+      if (!this.Otp.verify(`${phone + email}`, otp)) {
+        throw new BadRequestException(`Otp noto'g'ri yoki vaxti tugagan`);
+      }
+
+      if (doctor && doctor.step === 'finish' && doctor.verified === true) {
+        const AcsesToken = this.TokenGenerate.AcsesToken({
+          id: doctor.id,
+          role: doctor.role,
+        });
+        const RefreshToken = this.TokenGenerate.RefreshToken({
+          id: doctor.id,
+          role: doctor.role,
+        });
+        return { AcsesToken, RefreshToken };
+      }
+      if (doctor && doctor.step === 'pending') {
+        throw new BadRequestException(
+          'Akkauntingiz admin tomonidan tasdiqlanmagan',
+        );
+      }
+      if (doctor && doctor.step === 'block') {
+        throw new BadRequestException('Siz Admin tomonidan bloklangansiz.');
+      }
+      if (doctor && doctor.step === 'files') {
+        throw new BadRequestException(
+          `Siz Kerakliy fayillaringizni kiritmadingiz. Siznin ID raqamingiz ${doctor.id}`,
+        );
+      }
+      if (!doctor) {
+        const data =  await this.prisma.doctors.create({
+          data: { phone, email, step: 'files' },
+        });
+        return successRes(
+          data,
+          201,
+          'Malumotlaringiz tasdiqlandi keyingi qadamda kerakliy fayillardi kiriting.',
+        );
       }
     } catch (error) {
-      console.log(error);
-
       return ErrorHender(error);
     }
   }
@@ -69,103 +88,111 @@ export class DoctorService {
       'yatt_file',
       'sertifikat_file',
       'tibiy_varaqa_file',
-    ];
-    const updateFiles: Record<string, string> = {};
+    ] as const;
+
+    const uploadedFiles: Partial<Record<(typeof fileFields)[number], string>> =
+      {};
 
     try {
       const doctorData = await this.prisma.doctors.findUnique({
         where: { id: doctor_id },
       });
-      if (!doctorData) throw new NotFoundException('Doctor id not found');
+      if (!doctorData) throw new NotFoundException('Doctor id topilmadi.');
 
       const doctor_files = await this.prisma.doctor_file.findFirst({
-        where: { doctor_id },
+        where: { doctor_id: doctorData.id },
       });
 
-      const savePromises = fileFields.map(async (field) => {
-        if (files[field]?.length) {
-          const fileUrl = await this.fileService.createFile(files[field][0]);
-          updateFiles[field] = fileUrl;
+      const uploadPromises = fileFields.map(async (field) => {
+        const f = files[field];
+        if (!f?.length) return null;
 
-          if (doctor_files && doctor_files[field]) {
-            this.fileService
-              .existFile(doctor_files[field])
-              .then((exist) => {
-                if (exist) {
-                  return this.fileService.deleteFile(doctor_files[field]);
-                }
-              })
-              .catch(console.error);
+        const fileUrl = await this.fileService.createFile(f[0]);
+        uploadedFiles[field] = fileUrl;
+        return fileUrl;
+      });
+
+      await Promise.all(uploadPromises);
+
+      const result = await this.prisma.$transaction(async (tx) => {
+        if (doctor_files) {
+          const dataToUpdate: Record<string, any> = {};
+          for (const k of Object.keys(uploadedFiles)) {
+            dataToUpdate[k] = (uploadedFiles as any)[k];
           }
-          return fileUrl;
+          return await tx.doctor_file.update({
+            where: { id: doctor_files.id },
+            data: dataToUpdate,
+          });
+        } else {
+          const createData: any = {
+            doctor_id: doctorData.id,
+          };
+          for (const field of fileFields) {
+            createData[field] = (uploadedFiles as any)[field] ?? null;
+          }
+          const created = await tx.doctor_file.create({ data: createData });
+
+          await tx.doctors.update({
+            where: { id: doctorData.id },
+            data: { step: 'pending' },
+          });
+
+          return created;
         }
       });
-      await Promise.all(savePromises);
-      let result: any = {};
+
       if (doctor_files) {
-        result = await this.prisma.doctor_file.update({
-          where: { id: doctor_files.id },
-          data: updateFiles,
-        });
-        return successRes(
-          result,
-          200,
-          "Malumotlaringiz muvaffaqiyatli o'zgartirildi. Admin 24 soat ichida ko'rib chiqadi va sizga xabar beriladi.",
-        );
-      } else {
-        result = await this.prisma.doctor_file.create({
-          data: {
-            doctor_id,
-            passport_file: updateFiles.passport_file || '',
-            diplom_file: updateFiles.diplom_file || '',
-            yatt_file: updateFiles.yatt_file || '',
-            sertifikat_file: updateFiles.sertifikat_file || '',
-            tibiy_varaqa_file: updateFiles.tibiy_varaqa_file || '',
-          },
-        });
-        return successRes(
-          result,
-          201,
-          "Malumotlaringiz muvaffaqiyatli saqlandi. Admin 24 soat ichida ko'rib chiqadi va sizga xabar beriladi.",
-        );
-      }
-    } catch (error) {
-      Object.values(updateFiles).forEach((f) => {
-        this.fileService
-          .existFile(f)
-          .then((exist) => {
-            if (exist) {
-              return this.fileService.deleteFile(f);
+        const deleteOldPromises = Object.entries(uploadedFiles).map(
+          async ([field, newUrl]) => {
+            const oldUrl = (doctor_files as any)[field];
+            if (oldUrl && oldUrl !== newUrl) {
+              try {
+                const exist = await this.fileService.existFile(oldUrl);
+                if (exist) await this.fileService.deleteFile(oldUrl);
+              } catch (err) {
+                console.error('Old file delete error:', err);
+              }
             }
-          })
-          .catch(console.error);
+          },
+        );
+        await Promise.all(deleteOldPromises);
+      }
+
+      return successRes(
+        result,
+        doctor_files ? 200 : 201,
+        doctor_files
+          ? "Ma'lumotlaringiz o'zgartirildi. Admin 24 soat ichida tekshiradi."
+          : "Ma'lumotlaringiz saqlandi. Admin 24 soat ichida tekshiradi.",
+      );
+    } catch (error) {
+      const cleanupPromises = Object.values(uploadedFiles).map(async (f) => {
+        try {
+          if (await this.fileService.existFile(f)) {
+            await this.fileService.deleteFile(f);
+          }
+        } catch (err) {
+          console.error('Cleanup error:', err);
+        }
       });
+      await Promise.all(cleanupPromises);
       return ErrorHender(error);
     }
   }
 
   async login(data: cretedDoctorDto) {
+    const { phone, email } = data;
     try {
-      const doctor = await this.prisma.doctors.findUnique({
-        where: { phone: data.phone },
-      });
-      if (!doctor) {
-        throw new NotFoundException('Doctor Not Fount');
-      }
-      if (!doctor.verified) {
-        throw new BadRequestException(
-          'Akkauntingia admin tomonidan tasdiqlanmagan',
-        );
-      }
-      const AcsesToken = this.TokenGenerate.AcsesToken({
-        id: doctor.id,
-        role: doctor.role,
-      });
-      const RefreshToken = this.TokenGenerate.RefreshToken({
-        id: doctor.id,
-        role: doctor.role,
-      });
-      return { AcsesToken, RefreshToken };
+      let otp = this.Otp.Generate(`${phone + email}`);
+      await this.mail.sendMail(
+        email,
+        'Tasdiqlash xabari',
+        `<div><h3>Ushbu kodni hech kimga bermayng uni faqat firibgarlar so'raydi Kod:<h1><b>${otp}</b></h1><h3></div>`,
+      );
+      return {
+        message: `Tasdiqlash uchun quyidagi emailga ${email} habar yuborildi.`,
+      };
     } catch (error) {
       return ErrorHender(error);
     }
@@ -235,16 +262,32 @@ export class DoctorService {
       if (!data) {
         throw new NotFoundException('Not Fount Doctor id');
       }
-      await this.prisma.doctors.update({
-        where: { id: data.id },
-        data: { verified: true },
-      });
-      await this.prisma.wellet.create({ data: { doctor_id: id } });
-      return {
-        message:
-          'Akaunt akktivlashtirildi va Doctor uchun virtuval hamyon yaratildi.',
-        statusCode: 200,
-      };
+
+      if (data.verified === true) {
+        await this.prisma.doctors.update({
+          where: { id: data.id },
+          data: { verified: false, step: 'block' },
+        });
+        return { message: 'Doktor akkaunti bloklandi.' };
+      } else {
+        const updatedDoctor = await this.prisma.doctors.update({
+          where: { id: data.id },
+          data: { verified: true, step: 'finish' },
+        });
+
+        const wallet = await this.prisma.wellet.findUnique({
+          where: { doctor_id: id },
+        });
+        if (!wallet) {
+          await this.prisma.wellet.create({ data: { doctor_id: id } });
+        }
+        return {
+          message:
+            'Akkaunt aktivlashtirildi va Doctor uchun virtuval hamyon tayyor.',
+          statusCode: 200,
+          doctor: updatedDoctor,
+        };
+      }
     } catch (error) {
       return ErrorHender(error);
     }

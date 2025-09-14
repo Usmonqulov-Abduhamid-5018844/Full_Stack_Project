@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
@@ -28,8 +29,11 @@ export class CreateAdminDto {
   @IsNotEmpty()
   login: string;
 
-  @ApiProperty({ example: 'active | is_active | block' })
+  @ApiProperty({ example: 'active | in_active | block' })
   @IsOptional()
+  @IsEnum(EAdminStatus, {
+    message: `status faqat ( active | in_active | block ) shu qiymatlardan biri bo'lishi kerak!`,
+  })
   @IsString()
   status?: EAdminStatus;
 }

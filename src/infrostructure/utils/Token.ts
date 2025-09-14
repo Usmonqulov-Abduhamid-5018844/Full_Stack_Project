@@ -8,13 +8,13 @@ export class Token {
   AcsesToken(peload: { id: number; role: string }) {
     return this.jwt.sign(peload, {
       secret: String(process.env.ACSES_SECRET || 'acses_key'),
-      expiresIn: '30d',
+      expiresIn: '10d',
     });
   }
   RefreshToken(peload: { id: number; role: string }) {
     return this.jwt.sign(peload, {
       secret: String(process.env.REFRESH_SECRET || 'refresh_key'),
-      expiresIn: '1h',
+      expiresIn: '30d',
     });
   }
 }

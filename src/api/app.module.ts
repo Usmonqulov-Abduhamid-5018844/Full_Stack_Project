@@ -23,13 +23,19 @@ import { resolve } from 'path';
 import { FileDeleteModule } from './file_delete/file_delete.module';
 import { MeModule } from './me/me.module';
 import { RefreshTokenModule } from './refresh_token/refresh_token.module';
+import { MailModule } from 'src/common/mail/mail.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   controllers: [AppController],
   imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 60, limit: 20 }],
+    }),
     ServeStaticModule.forRoot({
-      rootPath: resolve(__dirname, '..', '..', '..', 'uplout'),
-      serveRoot: '/uplout',
+      rootPath: resolve(__dirname, '..', '..', '..', 'upload'),
+      serveRoot: '/upload',
       serveStaticOptions: {
         fallthrough: false,
       },
@@ -39,6 +45,7 @@ import { RefreshTokenModule } from './refresh_token/refresh_token.module';
     PrismaModule,
     DoctorModule,
     FileModule,
+    MailModule,
     AdminModule,
     PatientsModule,
     TibbiyKorikModule,
@@ -55,6 +62,12 @@ import { RefreshTokenModule } from './refresh_token/refresh_token.module';
     FileDeleteModule,
     MeModule,
     RefreshTokenModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

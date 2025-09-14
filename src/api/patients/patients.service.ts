@@ -14,6 +14,7 @@ import { ErrorHender } from 'src/infrostructure/utils/catchError';
 import { OtppatiensDto } from './dto/otp-patient.dto';
 import { successRes } from 'src/infrostructure/utils/succesResponse';
 import { ImageValidation } from 'src/common/pipe/image_validation.pipe';
+import { MailService } from 'src/common/mail/mail.service';
 
 @Injectable()
 export class PatientsService {
@@ -22,54 +23,56 @@ export class PatientsService {
     private readonly Otp: OtpGenerate,
     private readonly fileService: FileService,
     private readonly tokenGenerate: Token,
+    private readonly mail: MailService,
   ) {}
 
-  async create(createPatientDto: CreatePatientDto) {
-    const { phone } = createPatientDto;
-    try {
-      const data = await this.prisma.patients.findFirst({ where: { phone } });
-      if (data) {
-        throw new ConflictException('Alredy exists');
-      }
-      let otp = this.Otp.Generate(phone);
-      return { otp, message: 'otp orqaliy shaxsingizni tasdiqlayng.' };
-    } catch (error) {
-      return ErrorHender(error);
-    }
-  }
+ async verify(Otpdata: OtppatiensDto) {
+  const { phone, otp, email } = Otpdata;
 
-  async verify(Otpdata: OtppatiensDto) {
-    const { phone, otp } = Otpdata;
-    try {
-      if (this.Otp.verify(phone, otp)) {
-        const data = await this.prisma.patients.create({ data: { phone } });
-        return successRes(data, 201);
-      } else {
-        throw new BadRequestException('Otp expirns');
-      }
-    } catch (error) {
-      console.log(error);
-      return ErrorHender(error);
+  try {
+    let user = await this.prisma.patients.findFirst({
+      where: { phone, email },
+    });
+
+    if (!this.Otp.verify(`${phone + email}`, otp)) {
+      throw new BadRequestException("Otp noto'g'ri yoki vaqti tugagan");
     }
+
+    if (!user) {
+      user = await this.prisma.patients.create({
+        data: { phone, email},
+      });
+    }
+
+    const AcsesToken = this.tokenGenerate.AcsesToken({
+      id: user.id,
+      role: user.role,
+    });
+
+    const RefreshToken = this.tokenGenerate.RefreshToken({
+      id: user.id,
+      role: user.role,
+    });
+
+    return { AcsesToken, RefreshToken };
+  } catch (error) {
+    return ErrorHender(error);
   }
+}
+
 
   async login(data: CreatePatientDto) {
+    const { email, phone } = data;
     try {
-      const Data = await this.prisma.patients.findFirst({
-        where: { phone: data.phone },
-      });
-      if (!Data) {
-        throw new NotFoundException('user id Not Fount');
-      }
-      const AcsesToken = this.tokenGenerate.AcsesToken({
-        id: Data.id,
-        role: Data.role,
-      });
-      const RefreshToken = this.tokenGenerate.RefreshToken({
-        id: Data.id,
-        role: Data.role,
-      });
-      return { AcsesToken, RefreshToken };
+      let otp = this.Otp.Generate(`${phone + email}`);
+      await this.mail.sendMail(
+        email,
+        'Tasdiqlash xabari',
+        `<div><h3>Ushbu kodni hech kimga bermayng uni faqat firibgarlar so'raydi Kod:<h1><b>${otp}</b></h1><h3></div>`,
+      );
+      return {
+        message: `Tasdiqlash uchun quyidagi emailga ${email} habar yuborildi.`,
+      };
     } catch (error) {
       return ErrorHender(error);
     }

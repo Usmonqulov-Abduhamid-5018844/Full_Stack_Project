@@ -36,10 +36,12 @@ import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 
-  @Post('creted')
-  create(@Body() createDoctorDto: cretedDoctorDto) {
-    return this.doctorService.create(createDoctorDto);
+
+  @Post('login')
+  login(@Body() data: cretedDoctorDto) {
+    return this.doctorService.login(data);
   }
+
   @Post('verify_otp')
   verify(@Body() createDoctorDto: OtpDoctorDto) {
     return this.doctorService.verify(createDoctorDto);
@@ -64,13 +66,16 @@ export class DoctorController {
   })
   @Post('add_files')
   @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'passport_file', maxCount: 1 },
-      { name: 'diplom_file', maxCount: 1 },
-      { name: 'yatt_file', maxCount: 1 },
-      { name: 'sertifikat_file', maxCount: 1 },
-      { name: 'tibiy_varaqa_file', maxCount: 1 },
-    ], {limits: {fieldSize: 2 * 1024 * 1024}}),
+    FileFieldsInterceptor(
+      [
+        { name: 'passport_file', maxCount: 1 },
+        { name: 'diplom_file', maxCount: 1 },
+        { name: 'yatt_file', maxCount: 1 },
+        { name: 'sertifikat_file', maxCount: 1 },
+        { name: 'tibiy_varaqa_file', maxCount: 1 },
+      ],
+      { limits: { fieldSize: 2 * 1024 * 1024 } },
+    ),
   )
   add_files(
     @Body() body: DoctorIdDto,
@@ -81,14 +86,9 @@ export class DoctorController {
     return this.doctorService.add_files(validatedFiles, body);
   }
 
-  @Post('login')
-  login(@Body() data: cretedDoctorDto) {
-    return this.doctorService.login(data);
-  }
-
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.ADMIN, ERols.SUPPER_ADMIN)
-  @ApiOperation({ summary: 'Admin yoki Supper_admin uchun' })
+  @ApiOperation({ summary: 'Admin yoki Supper_admin uchun ' })
   @Patch('doctor/active/:id')
   updateDoctorActive(@Param('id') id: string) {
     return this.doctorService.doctor_active(+id);
@@ -117,7 +117,7 @@ export class DoctorController {
     ],
   })
   @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get()
   findAll(@Query() query: Record<string, any>) {
     return this.doctorService.findAll(query);
@@ -176,6 +176,7 @@ export class DoctorController {
     return this.doctorService.update(+id, updateDoctorDto, file);
   }
 
+  @ApiOperation({summary: "Supper admin yoki Admin"})
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.ADMIN, ERols.SUPPER_ADMIN)
   @Delete(':id')

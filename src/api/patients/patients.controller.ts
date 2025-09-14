@@ -29,17 +29,14 @@ import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
 
-  @Post('create')
-  create(@Body() createPatientDto: CreatePatientDto) {
-    return this.patientsService.create(createPatientDto);
-  }
-  @Post('verify_otp')
-  verify(@Body() createDoctorDto: OtppatiensDto) {
-    return this.patientsService.verify(createDoctorDto);
-  }
   @Post('login')
   login(@Body() data: CreatePatientDto) {
     return this.patientsService.login(data);
+  }
+  
+  @Post('verify_otp')
+  verify(@Body() createDoctorDto: OtppatiensDto) {
+    return this.patientsService.verify(createDoctorDto);
   }
 
   @ApiQuery({ name: 'page', required: false, example: 1 })

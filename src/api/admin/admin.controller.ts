@@ -27,6 +27,7 @@ import { Roles } from 'src/common/Decorator/Role.decorator';
 import { ERols } from 'src/common/enum';
 import { SelfGuard } from 'src/common/Guard/self.guard';
 import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
+import { AdminstatusDto } from './dto/adminStatus.dto';
 
 @Controller('admin')
 export class AdminController implements OnModuleInit {
@@ -93,6 +94,15 @@ export class AdminController implements OnModuleInit {
   findOne(@Param('id',ParseIdPipe) id: string) {
     return this.adminService.findOne(+id);
   }
+
+  @ApiOperation({summary: "Supper admin uchun"})
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.SUPPER_ADMIN)
+  @Patch("admin/status/:id")
+  adminStatus(@Param("id") id: string, @Body() data: AdminstatusDto){
+    return this.adminService.adminStatus(+id, data)
+  }
+
 
   @ApiOperation({
     summary: 'Update admin',

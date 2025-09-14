@@ -1,11 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsEmail,
   IsNotEmpty,
   IsPhoneNumber,
   IsString,
   Length,
-  MaxLength,
-  MinLength,
 } from 'class-validator';
 
 export class OtppatiensDto {
@@ -19,4 +18,9 @@ export class OtppatiensDto {
   @IsPhoneNumber('UZ')
   @IsNotEmpty()
   phone: string;
+
+  @ApiProperty({ example: 'usmonqulovabduhamid00@gmail.com' })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 }

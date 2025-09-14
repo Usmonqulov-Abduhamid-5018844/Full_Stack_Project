@@ -2,6 +2,7 @@ import {
   BadGatewayException,
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -15,6 +16,8 @@ import { LoginAdminDto } from './dto/login-admin.dto';
 import { Token } from 'src/infrostructure/utils/Token';
 import { FileService } from '../file/file.service';
 import { ImageValidation } from 'src/common/pipe/image_validation.pipe';
+import { AdminstatusDto } from './dto/adminStatus.dto';
+import { ERols } from 'src/common/enum';
 
 @Injectable()
 export class AdminService {
@@ -185,11 +188,33 @@ export class AdminService {
       if (!data) {
         throw new NotFoundException();
       }
+      if(data.role === ERols.SUPPER_ADMIN){
+        throw new ForbiddenException("Siz O'z akkauntingizni o'chira olmaysiz!")
+      }
       await this.prisma.admins.delete({ where: { id } });
       if (data.image) {
         await this.fileService.deleteFile(data.image).catch(() => {});
       }
       return { message: 'delete', statusCode: 200 };
+    } catch (error) {
+      return ErrorHender(error);
+    }
+  }
+
+  async adminStatus(id: number, adminstatusDto: AdminstatusDto) {
+    try {
+      const data = await this.prisma.admins.findUnique({ where: { id } });
+      if (!data) {
+        throw new NotFoundException('Admin id topilmadi.');
+      }
+      if(data.role === ERols.SUPPER_ADMIN){
+        throw new ForbiddenException("Siz o'z akkauntingizni statusini o'zgartira olmaysiz.")
+      }
+      const adminUpdate = await this.prisma.admins.update({
+        where: { id: data.id },
+        data: { status: adminstatusDto.status },
+      });
+      return successRes(adminUpdate);
     } catch (error) {
       return ErrorHender(error);
     }

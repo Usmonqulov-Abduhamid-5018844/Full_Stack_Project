@@ -1,5 +1,5 @@
 import { totp } from 'otplib';
-totp.options = { step: 120 };
+totp.options = { step: 120, window: 1 };
 export class OtpGenerate {
   Generate(secret: string) {
     return totp.generate(secret);

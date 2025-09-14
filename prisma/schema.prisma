@@ -46,6 +46,7 @@ model Doctors {
   reyting               Int                     @default(0)
   reyting_count         Int                     @default(0)
   experience_years      Int?
+  step                  String?
   email                 String?
   phone                 String?                 @unique
   password              String?
@@ -85,7 +86,7 @@ model Service_type {
 
 model Wellet {
   id         Int      @id @default(autoincrement())
-  doctor_id  Int
+  doctor_id  Int      @unique
   balance    Decimal  @default(0)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -146,7 +147,7 @@ model Patients {
   email         String?
   phone         String?         @unique
   gender        String?
-  role          String          @default("patients")
+  role          String         @default("patients")
   password      String?
   age           Int?
   image         String?

@@ -11,27 +11,33 @@ dotenv.config();
 export class FileService {
   private readonly Base_url = process.env.BASE_API;
 
-async createFile(file: Express.Multer.File | any): Promise<string> {
+async createFile(file: Express.Multer.File): Promise<string> {
   try {
     const ext = extname(file.originalname);
-    const file_name = `${file.originalname.split('.')[0]}__${v4()}${ext.toLowerCase()}`;
-    const file_path = resolve(__dirname, '..', '..', '..', '..', 'uplout');
+    const baseName = file.originalname.split('.')[0];
+    const file_name = `${baseName}__${v4()}${ext.toLowerCase()}`;
 
-    if (!existsSync(file_path)) mkdirSync(file_path, { recursive: true });
+    const file_path = resolve(__dirname, '..', '..','..', '..', 'upload');
+
+    if (!existsSync(file_path)) {
+      mkdirSync(file_path, { recursive: true });
+    }
 
     await writeFile(join(file_path, file_name), file.buffer);
 
     return `${this.Base_url}/${file_name}`;
   } catch (error) {
+    console.error(error);
     return ErrorHender(error);
   }
 }
+
 
  async deleteFile(fileUrl: string): Promise<void> {
   try {
     const prefix = this.Base_url + '/';
     const fileName = fileUrl.replace(prefix, '');
-    const filePath = resolve(__dirname, '..', '..', '..', '..', 'uplout', fileName);
+    const filePath = resolve(__dirname, '..', '..','..', '..', 'upload', fileName);
 
     if (!existsSync(filePath)) {
       return;
@@ -58,7 +64,7 @@ async createFile(file: Express.Multer.File | any): Promise<string> {
       '..',
       '..',
       '..',
-      'uplout',
+      'upload',
       file,
     );
     if (existsSync(file_path)) {

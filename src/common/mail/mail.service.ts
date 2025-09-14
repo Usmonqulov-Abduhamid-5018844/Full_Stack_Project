@@ -1,27 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-
 @Injectable()
 export class MailService {
   private transporter;
 
-  constructor(@InjectQueue('mail') private mailQueue: Queue) {
+  constructor() {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
+        user: String(process.env.MEIL_FROM),
+        pass: String(process.env.MEIL_PASS),
       },
     });
   }
 
   async sendMail(to: string, subject: string, text: string) {
-    await this.mailQueue.add('sendEmail', { to, subject, text });
-  }
-
-  async sendMailNow(to: string, subject: string, text: string) {
-    await this.transporter.sendMail({ from: process.env.MAIL_USER, to, subject, text });
+    try {
+      const message = await this.transporter.sendMail({
+        from: String(process.env.MEIL_FROM),
+        to,
+        subject,
+        html: text,
+      });
+      return message;
+    } catch (error) {
+      throw new UnprocessableEntityException("Emailga xabar yoborishda xatilik bor",error)
+    }
   }
 }

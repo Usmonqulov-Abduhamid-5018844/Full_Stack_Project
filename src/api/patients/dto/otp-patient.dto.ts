@@ -19,8 +19,4 @@ export class OtppatiensDto {
   @IsNotEmpty()
   phone: string;
 
-  @ApiProperty({ example: 'usmonqulovabduhamid00@gmail.com' })
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
 }

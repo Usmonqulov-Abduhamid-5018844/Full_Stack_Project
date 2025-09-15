@@ -27,20 +27,20 @@ export class PatientsService {
   ) {}
 
  async verify(Otpdata: OtppatiensDto) {
-  const { phone, otp, email } = Otpdata;
+  const { phone, otp } = Otpdata;
 
   try {
     let user = await this.prisma.patients.findFirst({
-      where: { phone, email },
+      where: { phone },
     });
 
-    if (!this.Otp.verify(`${phone + email}`, otp)) {
+    if (!this.Otp.verify(`${phone}`, otp)) {
       throw new BadRequestException("Otp noto'g'ri yoki vaqti tugagan");
     }
 
     if (!user) {
       user = await this.prisma.patients.create({
-        data: { phone, email},
+        data: { phone},
       });
     }
 
@@ -62,9 +62,9 @@ export class PatientsService {
 
 
   async login(data: CreatePatientDto) {
-    const { email, phone } = data;
+    const {phone } = data;
     try {
-      let otp = this.Otp.Generate(`${phone + email}`);
+      let otp = this.Otp.Generate(`${phone}`);
       // await this.mail.sendMail(
       //   email,
       //   'Tasdiqlash xabari',

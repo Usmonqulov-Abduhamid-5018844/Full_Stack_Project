@@ -139,6 +139,7 @@ export class PatientsService {
       return successRes(data);
     } catch (error) {
       return ErrorHender(error);
+      
     }
   }
 

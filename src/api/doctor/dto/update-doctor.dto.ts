@@ -39,11 +39,6 @@ export class UpdateDoctorDto {
   phone?: string;
 
   @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  password?: string;
-
-  @IsOptional()
   @IsDateString()
   date_of_birth?: string;
 

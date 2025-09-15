@@ -55,11 +55,8 @@ export class AdminService {
       if (!Data) {
         throw new NotFoundException();
       }
-      if (data.login !== Data.login) {
-        throw new BadGatewayException('Wrong login');
-      }
       if (!bcrypt.compareSync(data.password, Data.password)) {
-        throw new BadRequestException('wrong login or password');
+        throw new BadRequestException('wrong password');
       }
       const AcsesToken = this.TokenGenerate.AcsesToken({
         id: Data.id,
@@ -94,6 +91,7 @@ export class AdminService {
       if (phone) {
         where.phone = { contains: phone, mode: 'insensitive' };
       }
+      const total = await this.prisma.doctors.count({where})
 
       const data = await this.prisma.admins.findMany({
         where,
@@ -106,7 +104,12 @@ export class AdminService {
       if (!data.length) {
         throw new NotFoundException();
       }
-      return successRes(data);
+      return successRes({
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        data
+      });
     } catch (error) {
       return ErrorHender(error);
     }

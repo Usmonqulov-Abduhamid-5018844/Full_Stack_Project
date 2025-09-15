@@ -43,25 +43,25 @@ export class DoctorSchedulesController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id',ParseIdPipe) id: string, @Req() req: Request) {
-    return this.doctorSchedulesService.findOne(+id, req);
+  findOne(@Param('id',ParseIdPipe) id: number, @Req() req: Request) {
+    return this.doctorSchedulesService.findOne(id, req);
   }
 
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.DOCTOR)
   @Patch(':id')
   update(
-    @Param('id', ParseIdPipe) id: string,
+    @Param('id', ParseIdPipe) id: number,
     @Body() updateDoctorScheduleDto: UpdateDoctorScheduleDto,
     @Req() req: Request
   ) {
-    return this.doctorSchedulesService.update(+id, updateDoctorScheduleDto, req);
+    return this.doctorSchedulesService.update(id, updateDoctorScheduleDto, req);
   }
 
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.DOCTOR, ERols.ADMIN, ERols.SUPPER_ADMIN)
   @Delete(':id')
-  remove(@Param('id', ParseIdPipe) id: string, @Req() req: Request ) {
-    return this.doctorSchedulesService.remove(+id, req);
+  remove(@Param('id', ParseIdPipe) id: number, @Req() req: Request ) {
+    return this.doctorSchedulesService.remove(id, req);
   }
 }

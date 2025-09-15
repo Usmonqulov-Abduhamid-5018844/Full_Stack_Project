@@ -48,7 +48,6 @@ model Doctors {
   experience_years      Int?
   step                  String?
   phone                 String?                 @unique
-  password              String?
   role                  String                  @default("doctor")
   date_of_birth         DateTime?
   gender                String?
@@ -146,7 +145,6 @@ model Patients {
   phone         String?         @unique
   gender        String?
   role          String         @default("patients")
-  password      String?
   age           Int?
   image         String?
   Tibbiy        Tibbiy_korik[]

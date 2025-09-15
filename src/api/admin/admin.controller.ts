@@ -65,7 +65,7 @@ export class AdminController implements OnModuleInit {
   @ApiOperation({ summary: 'Supper admin uchun' })
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.SUPPER_ADMIN)
-  @Post('creted')
+  @Post('create')
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
   }
@@ -98,7 +98,7 @@ export class AdminController implements OnModuleInit {
   @ApiOperation({summary: "Supper admin uchun"})
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.SUPPER_ADMIN)
-  @Patch("admin/status/:id")
+  @Patch("status/:id")
   adminStatus(@Param("id") id: string, @Body() data: AdminstatusDto){
     return this.adminService.adminStatus(+id, data)
   }

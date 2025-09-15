@@ -106,6 +106,7 @@ export class PatientsService {
       if (gender) {
         where.gender = { contains: gender, mode: 'insensitive' };
       }
+      const total = await this.prisma.patients.count({where})
 
       const data = await this.prisma.patients.findMany({
         where,
@@ -118,7 +119,12 @@ export class PatientsService {
       if (!data.length) {
         throw new NotFoundException('Not Fount users');
       }
-      return successRes(data);
+      return successRes({
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        data
+      });
     } catch (error) {
       return ErrorHender(error);
     }

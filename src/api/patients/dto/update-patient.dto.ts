@@ -31,11 +31,6 @@ export class UpdatePatientDto {
     message: `gender faqat 'male' yoki 'female' bo'lishi kerak`,
   })
   gender?: EDoctorGender;
-
-  @IsOptional()
-  @IsString()
-  password?: string;
-
   @IsOptional()
   @Type(() => Number)
   @IsInt()

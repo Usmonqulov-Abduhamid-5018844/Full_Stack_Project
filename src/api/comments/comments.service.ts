@@ -131,6 +131,8 @@ export class CommentsService {
       if (patients_id) {
         where.patients_id = Number(patients_id);
       }
+      const total = await this.prisma.comment.count({where})
+
       const data = await this.prisma.comment.findMany({
         where,
         orderBy: {
@@ -143,7 +145,12 @@ export class CommentsService {
       if (!data.length) {
         throw new NotFoundException();
       }
-      return successRes(data);
+      return successRes({
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        data
+      });
     } catch (error) {
       return ErrorHender(error);
     }

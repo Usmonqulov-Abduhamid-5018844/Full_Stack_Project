@@ -85,10 +85,6 @@ export class PatientsController {
           type: 'string',
           example: '+998930451852',
         },
-        password: {
-          type: 'string',
-          example: '12345678',
-        },
         gender: {
           type: 'string',
           enum: Object.values(EDoctorGender),

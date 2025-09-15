@@ -89,7 +89,7 @@ export class DoctorController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.ADMIN, ERols.SUPPER_ADMIN)
   @ApiOperation({ summary: 'Admin yoki Supper_admin uchun ' })
-  @Patch('doctor/active/:id')
+  @Patch('active/:id')
   updateDoctorActive(@Param('id') id: string) {
     return this.doctorService.doctor_active(+id);
   }
@@ -131,7 +131,7 @@ export class DoctorController {
 
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(ERols.DOCTOR)
-  @Patch('doctor/working/status')
+  @Patch('working/status')
   doctorworking(@Req() req: Request) {
     return this.doctorService.doctorWorking(req);
   }
@@ -146,7 +146,6 @@ export class DoctorController {
         bio: { type: 'string', example: '10 yillik tajribaga ega shifokor' },
         experience_years: { type: 'integer', example: 5 },
         phone: { type: 'string', example: '+998930451852' },
-        password: { type: 'string', example: 'myStrongPass123' },
         date_of_birth: {
           type: 'string',
           format: 'date-time',

@@ -52,14 +52,14 @@ export class PatientsController {
   })
   @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })
   @UseGuards(AuthGuard,RoleGuard)
-  @Roles(ERols.ADMIN,ERols.SUPPER_ADMIN)
+  @Roles(ERols.ADMIN,ERols.SUPPER_ADMIN, ERols.DOCTOR)
   @Get()
   findAll(@Query() query: Record<string, any>) {
     return this.patientsService.findAll(query);
   }
 
   @UseGuards(AuthGuard,RoleGuard)
-  @Roles(ERols.ADMIN,ERols.SUPPER_ADMIN)
+  @Roles(ERols.ADMIN,ERols.SUPPER_ADMIN, ERols.DOCTOR)
   @Get(':id')
   findOne(@Param('id',ParseIdPipe) id: string) {
     return this.patientsService.findOne(+id);

@@ -63,7 +63,7 @@ export class DoctorService {
         );
       }
       if (!doctor) {
-        const data =  await this.prisma.doctors.create({
+        const data = await this.prisma.doctors.create({
           data: { phone, step: 'files' },
         });
         return successRes(
@@ -196,7 +196,6 @@ export class DoctorService {
       return {
         message: `Tasdiqlash uchun quyidagi  ${otp} habar yuborildi.`,
       };
-
     } catch (error) {
       return ErrorHender(error);
     }
@@ -215,46 +214,60 @@ export class DoctorService {
       order = 'ASC',
       gender,
     } = query;
+
     try {
       const where: any = {};
-      if (first_name) {
-        where.file_name = { contains: first_name, mode: 'insensitive' };
-      }
-      if (last_name) {
+      if (first_name)
+        where.first_name = { contains: first_name, mode: 'insensitive' };
+      if (last_name)
         where.last_name = { contains: last_name, mode: 'insensitive' };
-      }
-      if (phone) {
-        where.phone = { contains: phone, mode: 'insensitive' };
-      }
-      if (gender) {
-        where.gender = { contains: gender, mode: 'insensitive' };
-      }
-      if (experience_years) {
+      if (phone) where.phone = { contains: phone, mode: 'insensitive' };
+      if (gender) where.gender = { contains: gender, mode: 'insensitive' };
+      if (experience_years)
         where.experience_years = {
           contains: experience_years,
           mode: 'insensitive',
         };
-      }
-      if (bio) {
-        where.bio = { contains: bio, mode: 'insensitive' };
-      }
-      if (region) {
-        where.region = { contains: region, mode: 'insensitive' };
-      }
+      if (bio) where.bio = { contains: bio, mode: 'insensitive' };
+      if (region) where.region = { contains: region, mode: 'insensitive' };
+
+      const total = await this.prisma.doctors.count({ where });
 
       const data = await this.prisma.doctors.findMany({
         where,
-        orderBy: {
-          [sortBy]: order.toLowerCase(),
-        },
+        orderBy: { [sortBy]: order.toLowerCase() },
         skip: (page - 1) * limit,
         take: Number(limit),
-        include: { Doctor_file: true, Wellet: true },
+        include: {
+          Doctor_file: {
+            select: {
+              id: true,
+              diplom_file: true,
+              passport_file: true,
+              yatt_file: true,
+              sertifikat_file: true,
+              tibiy_varaqa_file: true,
+            },
+          },
+          Wellet: {
+            select: {
+              id: true,
+              balance: true,
+            },
+          },
+        },
       });
+
       if (!data.length) {
-        throw new NotFoundException();
+        throw new NotFoundException('Doctors not found');
       }
-      return successRes(data);
+
+      return successRes({
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        data,
+      });
     } catch (error) {
       return ErrorHender(error);
     }
@@ -301,7 +314,7 @@ export class DoctorService {
     try {
       const data = await this.prisma.doctors.findUnique({
         where: { id },
-        include: { Doctor_file: true, Wellet: true },
+        include: { Doctor_file: true, Wellet: true, doctor_schedules: true },
       });
       if (!data) {
         throw new NotFoundException('Not Fount Doctor id');

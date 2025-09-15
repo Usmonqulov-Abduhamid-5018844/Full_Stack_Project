@@ -256,8 +256,12 @@ export class DoctorService {
             },
           },
           Doctor_specialization:{
-           include:{
-            specialization:true
+           select:{
+            specialization:{
+              select: {
+                name: true
+              }
+            }
            }
           }
         },

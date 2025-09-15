@@ -65,13 +65,16 @@ export class PatientsService {
     const { email, phone } = data;
     try {
       let otp = this.Otp.Generate(`${phone + email}`);
-      await this.mail.sendMail(
-        email,
-        'Tasdiqlash xabari',
-        `<div><h3>Ushbu kodni hech kimga bermayng uni faqat firibgarlar so'raydi Kod:<h1><b>${otp}</b></h1><h3></div>`,
-      );
+      // await this.mail.sendMail(
+      //   email,
+      //   'Tasdiqlash xabari',
+      //   `<div><h3>Ushbu kodni hech kimga bermayng uni faqat firibgarlar so'raydi Kod:<h1><b>${otp}</b></h1><h3></div>`,
+      // );
+      // return {
+      //   message: `Tasdiqlash uchun quyidagi emailga ${email} habar yuborildi.`,
+      // };
       return {
-        message: `Tasdiqlash uchun quyidagi emailga ${email} habar yuborildi.`,
+        message: `Tasdiqlash uchun quyidagi  ${otp} habar yuborildi.`,
       };
     } catch (error) {
       return ErrorHender(error);

@@ -323,7 +323,15 @@ export class DoctorService {
     try {
       const data = await this.prisma.doctors.findUnique({
         where: { id },
-        include: { Doctor_file: true, Wellet: true, doctor_schedules: true },
+        include: { Doctor_file: true, Wellet: true, doctor_schedules: true, Doctor_specialization:{
+          select: {
+            specialization: {
+              select: {
+                name: true
+              }
+            }
+          }
+        } },
       });
       if (!data) {
         throw new NotFoundException('Not Fount Doctor id');

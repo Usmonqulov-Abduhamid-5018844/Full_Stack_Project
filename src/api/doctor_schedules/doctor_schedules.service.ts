@@ -46,17 +46,12 @@ export class DoctorSchedulesService {
   async findOne(id: number, req: Request) {
     const user = req["user"]
     try {
-      const data = await this.prisma.doctor_schedules.findFirst({
+      const data = await this.prisma.doctor_schedules.findMany({
         where: { doctor_id: id },
       });
-      if (!data) {
+      if (!data.length) {
         throw new NotFoundException();
       }
-      const isOwner = data.doctor_id === user.id
-      const isAdmin = [ERols.ADMIN, ERols.SUPPER_ADMIN].includes(user.role)
-     if (!isOwner && !isAdmin) {
-    throw new ForbiddenException("Siz bu jadvalga kirish huquqiga ega emassiz!");
-}
 
       return successRes(data);
     } catch (error) {

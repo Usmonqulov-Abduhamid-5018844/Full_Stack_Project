@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -19,7 +20,7 @@ export class AuthGuard implements CanActivate {
     const authHeader = request.headers.authorization;
 
     if (!authHeader) {
-      throw new NotFoundException('Token Not Fount');
+      throw new ForbiddenException()
     }
     const [bearer, token] = authHeader.split(' ');
     if (bearer == 'bearer' || !token) {

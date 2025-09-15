@@ -47,7 +47,6 @@ model Doctors {
   reyting_count         Int                     @default(0)
   experience_years      Int?
   step                  String?
-  email                 String?
   phone                 String?                 @unique
   password              String?
   role                  String                  @default("doctor")
@@ -144,7 +143,6 @@ model Patients {
   id            Int             @id @default(autoincrement())
   first_name    String?
   last_name     String?
-  email         String?
   phone         String?         @unique
   gender        String?
   role          String         @default("patients")

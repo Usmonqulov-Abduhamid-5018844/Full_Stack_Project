@@ -19,7 +19,7 @@ export class RefreshGuard implements CanActivate {
     const authHeader = request.headers.authorization;
 
     if (!authHeader) {
-      throw new NotFoundException('Token Not Fount');
+      throw new UnauthorizedException();
     }
     const [bearer, token] = authHeader.split(' ');
     if (bearer == 'bearer' || !token) {

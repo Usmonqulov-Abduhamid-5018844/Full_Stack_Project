@@ -46,8 +46,8 @@ export class DoctorSchedulesService {
   async findOne(id: number, req: Request) {
     const user = req["user"]
     try {
-      const data = await this.prisma.doctor_schedules.findUnique({
-        where: { id },
+      const data = await this.prisma.doctor_schedules.findFirst({
+        where: { doctor_id: id },
       });
       if (!data) {
         throw new NotFoundException();

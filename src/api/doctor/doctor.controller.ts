@@ -117,7 +117,7 @@ export class DoctorController {
     ],
   })
   @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get()
   findAll(@Query() query: Record<string, any>) {
     return this.doctorService.findAll(query);

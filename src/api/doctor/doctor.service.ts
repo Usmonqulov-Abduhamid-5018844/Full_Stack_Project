@@ -255,6 +255,11 @@ export class DoctorService {
               balance: true,
             },
           },
+          Doctor_specialization:{
+           include:{
+            specialization:true
+           }
+          }
         },
       });
 

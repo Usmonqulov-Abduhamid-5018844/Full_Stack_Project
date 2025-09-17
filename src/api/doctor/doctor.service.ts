@@ -17,6 +17,7 @@ import { Token } from 'src/infrostructure/utils/Token';
 import { ImageValidation } from 'src/common/pipe/image_validation.pipe';
 import { Request } from 'express';
 import { MailService } from 'src/common/mail/mail.service';
+import { log } from 'console';
 
 @Injectable()
 export class DoctorService {
@@ -194,7 +195,7 @@ export class DoctorService {
       //   message: `Tasdiqlash uchun quyidagi emailga ${email} habar yuborildi.`,
       // };
       return {
-        message: `Tasdiqlash uchun quyidagi  ${otp} habar yuborildi.`,
+        message: `Tasdiqlash uchun quyidagi  ${otp} habar yuborildi.`, statusCode: 200
       };
     } catch (error) {
       return ErrorHender(error);
@@ -210,8 +211,8 @@ export class DoctorService {
       region,
       page = 1,
       limit = 10,
-      sortBy = 'first_name',
-      order = 'ASC',
+      sortBy = 'id',
+      order = 'DESC',
       gender,
     } = query;
 
@@ -239,8 +240,82 @@ export class DoctorService {
         skip: (page - 1) * limit,
         take: Number(limit),
         include: {
-          Doctor_file: {
+          Doctor_file: true,
+          Wellet: {
             select: {
+              id: true,
+              balance: true,
+            },
+          },
+          Doctor_specialization:{
+           select:{
+            specialization:{
+              select: {
+                name: true
+              }
+            }
+           }
+          }
+        },
+      });
+
+      if (!data.length) {
+        throw new NotFoundException('Doctors not found');
+      }
+      
+      return successRes({
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        data,
+      });
+    } catch (error) {
+      return ErrorHender(error);
+    }
+  }
+  async finished(query: Record<string, any>) {
+    const {
+      first_name,
+      last_name,
+      phone,
+      experience_years,
+      bio,
+      region,
+      page = 1,
+      limit = 10,
+      sortBy = 'id',
+      order = 'DESC',
+      gender,
+    } = query;
+
+    try {
+      const where: any = {};
+      if (first_name)
+        where.first_name = { contains: first_name, mode: 'insensitive' };
+      if (last_name)
+        where.last_name = { contains: last_name, mode: 'insensitive' };
+      if (phone) where.phone = { contains: phone, mode: 'insensitive' };
+      if (gender) where.gender = { contains: gender, mode: 'insensitive' };
+      if (experience_years)
+        where.experience_years = {
+          contains: experience_years,
+          mode: 'insensitive',
+        };
+      if (bio) where.bio = { contains: bio, mode: 'insensitive' };
+      if (region) where.region = { contains: region, mode: 'insensitive' };
+
+      where.verified = true
+
+      const total = await this.prisma.doctors.count({ where });
+
+      const data = await this.prisma.doctors.findMany({
+        where,
+        orderBy: { [sortBy]: order.toLowerCase() },
+        skip: (page - 1) * limit,
+        take: Number(limit),
+        include: {
+          Doctor_file: {
+             select: {
               id: true,
               diplom_file: true,
               passport_file: true,

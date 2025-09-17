@@ -123,6 +123,37 @@ export class DoctorController {
     return this.doctorService.findAll(query);
   }
 
+  
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiQuery({ name: 'first_name', required: false })
+  @ApiQuery({ name: 'last_name', required: false })
+  @ApiQuery({ name: 'bio', required: false })
+  @ApiQuery({ name: 'experience_years', required: false })
+  @ApiQuery({ name: 'gender', required: false })
+  @ApiQuery({ name: 'region', required: false })
+  @ApiQuery({ name: 'phone', required: false })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: [
+      'first_name',
+      'bio',
+      'last_name',
+      'experience_years',
+      'phone',
+      'gender',
+      'region',
+    ],
+  })
+  @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(ERols.ADMIN, ERols.SUPPER_ADMIN)
+  @Get("finished")
+  Finished(@Query() query: Record<string,any>){
+    return this.doctorService.finished(query)
+  }
+
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id', ParseIdPipe) id: string) {

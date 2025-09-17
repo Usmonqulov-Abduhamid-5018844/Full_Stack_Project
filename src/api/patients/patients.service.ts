@@ -74,7 +74,7 @@ export class PatientsService {
       //   message: `Tasdiqlash uchun quyidagi emailga ${email} habar yuborildi.`,
       // };
       return {
-        message: `Tasdiqlash uchun quyidagi  ${otp} habar yuborildi.`,
+        message: `Tasdiqlash uchun quyidagi  ${otp} habar yuborildi.`, statusCode: 200,
       };
     } catch (error) {
       return ErrorHender(error);

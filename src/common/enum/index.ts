@@ -59,3 +59,10 @@ export enum ERegion {
   TOSHKENT = 'Toshkent viloyati',
   TOSHKENT_SHAHRI = 'Toshkent shahri',
 }
+
+export enum EStatus {
+  FILES = "files",
+  FINISH = "finish",
+  PENDING = "pending",
+  BLOCK = "block"
+} 

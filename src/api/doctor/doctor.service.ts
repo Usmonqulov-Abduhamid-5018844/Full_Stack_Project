@@ -18,6 +18,8 @@ import { ImageValidation } from 'src/common/pipe/image_validation.pipe';
 import { Request } from 'express';
 import { MailService } from 'src/common/mail/mail.service';
 import { log } from 'console';
+import { StatusDto } from './dto/status-doctor.dto';
+import { EStatus } from 'src/common/enum';
 
 @Injectable()
 export class DoctorService {
@@ -195,7 +197,8 @@ export class DoctorService {
       //   message: `Tasdiqlash uchun quyidagi emailga ${email} habar yuborildi.`,
       // };
       return {
-        message: `Tasdiqlash uchun quyidagi  ${otp} habar yuborildi.`, statusCode: 200
+        message: `Tasdiqlash uchun quyidagi  ${otp} habar yuborildi.`,
+        statusCode: 200,
       };
     } catch (error) {
       return ErrorHender(error);
@@ -247,22 +250,22 @@ export class DoctorService {
               balance: true,
             },
           },
-          Doctor_specialization:{
-           select:{
-            specialization:{
-              select: {
-                name: true
-              }
-            }
-           }
-          }
+          Doctor_specialization: {
+            select: {
+              specialization: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
         },
       });
 
       if (!data.length) {
         throw new NotFoundException('Doctors not found');
       }
-      
+
       return successRes({
         total,
         page: Number(page),
@@ -304,7 +307,7 @@ export class DoctorService {
       if (bio) where.bio = { contains: bio, mode: 'insensitive' };
       if (region) where.region = { contains: region, mode: 'insensitive' };
 
-      where.verified = true
+      where.verified = true;
 
       const total = await this.prisma.doctors.count({ where });
 
@@ -315,7 +318,7 @@ export class DoctorService {
         take: Number(limit),
         include: {
           Doctor_file: {
-             select: {
+            select: {
               id: true,
               diplom_file: true,
               passport_file: true,
@@ -330,15 +333,15 @@ export class DoctorService {
               balance: true,
             },
           },
-          Doctor_specialization:{
-           select:{
-            specialization:{
-              select: {
-                name: true
-              }
-            }
-           }
-          }
+          Doctor_specialization: {
+            select: {
+              specialization: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -357,38 +360,36 @@ export class DoctorService {
     }
   }
 
-  async doctor_active(id: number) {
+  async doctor_active(id: number, statusDto: StatusDto) {
     try {
       const data = await this.prisma.doctors.findUnique({ where: { id } });
       if (!data) {
         throw new NotFoundException('Not Fount Doctor id');
       }
-
-      if (data.verified === true) {
+      if (statusDto.status === EStatus.BLOCK) {
         await this.prisma.doctors.update({
           where: { id: data.id },
-          data: { verified: false, step: 'block' },
+          data: { verified: false, step: EStatus.BLOCK },
         });
-        return { message: 'Doktor akkaunti bloklandi.' };
-      } else {
-        const updatedDoctor = await this.prisma.doctors.update({
+        return {message: "Doctor bloklandi"}
+      } else if (statusDto.status === EStatus.FINISH) {
+        await this.prisma.doctors.update({
           where: { id: data.id },
-          data: { verified: true, step: 'finish' },
+          data: { verified: true, step: EStatus.FINISH },
         });
-
-        const wallet = await this.prisma.wellet.findUnique({
-          where: { doctor_id: id },
-        });
-        if (!wallet) {
-          await this.prisma.wellet.create({ data: { doctor_id: id } });
-        }
-        return {
-          message:
-            'Akkaunt aktivlashtirildi va Doctor uchun virtuval hamyon tayyor.',
-          statusCode: 200,
-          doctor: updatedDoctor,
-        };
       }
+
+      const wallet = await this.prisma.wellet.findUnique({
+        where: { doctor_id: id },
+      });
+      if (!wallet && statusDto.status === EStatus.FINISH ) {
+        await this.prisma.wellet.create({ data: { doctor_id: id } });
+      }
+      return {
+        message:
+          'Akkaunt aktivlashtirildi va Doctor uchun virtuval hamyon tayyor.',
+        statusCode: 200
+      };
     } catch (error) {
       return ErrorHender(error);
     }
@@ -398,15 +399,20 @@ export class DoctorService {
     try {
       const data = await this.prisma.doctors.findUnique({
         where: { id },
-        include: { Doctor_file: true, Wellet: true, doctor_schedules: true, Doctor_specialization:{
-          select: {
-            specialization: {
-              select: {
-                name: true
-              }
-            }
-          }
-        } },
+        include: {
+          Doctor_file: true,
+          Wellet: true,
+          doctor_schedules: true,
+          Doctor_specialization: {
+            select: {
+              specialization: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
       });
       if (!data) {
         throw new NotFoundException('Not Fount Doctor id');

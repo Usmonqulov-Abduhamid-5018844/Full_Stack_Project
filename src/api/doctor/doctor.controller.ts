@@ -31,6 +31,7 @@ import { RoleGuard } from 'src/common/Guard/role.guard';
 import { Roles } from 'src/common/Decorator/Role.decorator';
 import { SelfGuard } from 'src/common/Guard/self.guard';
 import { ParseIdPipe } from 'src/common/pipe/params.validate.pipe';
+import { StatusDto } from './dto/status-doctor.dto';
 
 @Controller('doctor')
 export class DoctorController {
@@ -90,8 +91,8 @@ export class DoctorController {
   @Roles(ERols.ADMIN, ERols.SUPPER_ADMIN)
   @ApiOperation({ summary: 'Admin yoki Supper_admin uchun ' })
   @Patch('active/:id')
-  updateDoctorActive(@Param('id') id: string) {
-    return this.doctorService.doctor_active(+id);
+  updateDoctorActive(@Param('id') id: string, @Body() data: StatusDto) {
+    return this.doctorService.doctor_active(+id, data);
   }
 
   @ApiQuery({ name: 'page', required: false, example: 1 })

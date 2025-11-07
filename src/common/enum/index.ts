@@ -46,7 +46,7 @@ export enum EDoctorGender {
 export enum ERegion {
   ANDIJON = 'Andijon',
   BUXORO = 'Buxoro',
-  FARGONA = 'Farg‘ona',
+  FARGONA = `Farg'ona`,
   JIZZAX = 'Jizzax',
   XORAZM = 'Xorazm',
   NAMANGAN = 'Namangan',
